@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Building2, Plus } from "lucide-react";
+import { Building2, Plus, Edit } from "lucide-react";
+import { DeleteClientButton } from "./dashboard/clients/[id]/delete-client-button";
 
 export default async function HomePage() {
   let clients: Array<{
@@ -85,28 +86,47 @@ export default async function HomePage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {clients.map((client) => (
-              <Link
+              <div
                 key={client.id}
-                href={`/dashboard/clients/${client.id}`}
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:border-green-500 hover:shadow-md transition-all"
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:border-green-500 hover:shadow-md transition-all group"
               >
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <Link
+                    href={`/dashboard/clients/${client.id}`}
+                    className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center hover:bg-green-200 transition-colors"
+                  >
                     <Building2 size={24} className="text-green-600" />
+                  </Link>
+                  <div className="flex items-center gap-1.5">
+                    <Link
+                      href={`/dashboard/clients/${client.id}/edit`}
+                      className="p-1 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors opacity-0 group-hover:opacity-100"
+                      title={`Edit ${client.name}`}
+                    >
+                      <Edit size={14} />
+                    </Link>
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <DeleteClientButton clientId={client.id} clientName={client.name} />
+                    </div>
+                    <span className="text-sm text-gray-500">
+                      {client._count.pos} POs
+                    </span>
                   </div>
-                  <span className="text-sm text-gray-500">
-                    {client._count.pos} POs
-                  </span>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  {client.name}
-                </h3>
-                {client.contactInfo && (
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {client.contactInfo}
-                  </p>
-                )}
-              </Link>
+                <Link
+                  href={`/dashboard/clients/${client.id}`}
+                  className="block"
+                >
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 hover:text-green-600 transition-colors">
+                    {client.name}
+                  </h3>
+                  {client.contactInfo && (
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {client.contactInfo}
+                    </p>
+                  )}
+                </Link>
+              </div>
             ))}
           </div>
         )}

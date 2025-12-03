@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Plus, FileText, ExternalLink } from "lucide-react";
+import { ArrowLeft, Plus, FileText, ExternalLink, Edit } from "lucide-react";
 import { formatCurrency, shouldBeExpired } from "@/lib/utils";
 import { DeletePOButton } from "./delete-po-button";
+import { DeleteClientButton } from "./delete-client-button";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -98,14 +99,25 @@ export default async function ClientDetailPage({ params }: PageProps) {
                 </div>
               </div>
             </div>
-            <Link
-              href={`/dashboard/clients/${id}/pos/new`}
-              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
-            >
-              <Plus size={18} className="sm:w-5 sm:h-5" />
-              <span className="hidden sm:inline">New PO</span>
-              <span className="sm:hidden">New</span>
-            </Link>
+            <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+              <Link
+                href={`/dashboard/clients/${id}/edit`}
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
+                title="Edit Client"
+              >
+                <Edit size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">Edit</span>
+              </Link>
+              <DeleteClientButton clientId={id} clientName={updatedClient.name} />
+              <Link
+                href={`/dashboard/clients/${id}/pos/new`}
+                className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
+              >
+                <Plus size={18} className="sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">New PO</span>
+                <span className="sm:hidden">New</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>

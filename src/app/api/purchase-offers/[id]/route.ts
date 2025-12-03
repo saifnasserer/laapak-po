@@ -163,7 +163,18 @@ export async function DELETE(
       );
     }
 
-    // Delete the PO (cascade will delete related items and views)
+    // Delete related records first (due to foreign key constraints)
+    // Delete all line items
+    await prisma.lineItem.deleteMany({
+      where: { poId: id },
+    });
+
+    // Delete all views
+    await prisma.pOView.deleteMany({
+      where: { poId: id },
+    });
+
+    // Now delete the PO
     await prisma.purchaseOffer.delete({
       where: { id },
     });
@@ -171,15 +182,27 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    const errorName = error instanceof Error ? error.name : "Error";
+    
     if (process.env.NODE_ENV === "development") {
       console.error("Error deleting Price Offer:", error);
+      console.error("Error details:", { 
+        errorName,
+        errorMessage, 
+        errorStack,
+      });
     } else {
-      console.error("Error deleting Price Offer:", errorMessage);
+      console.error("Error deleting Price Offer:", {
+        errorName,
+        errorMessage,
+      });
     }
     return NextResponse.json(
       { 
         error: "Failed to delete Price Offer",
-        details: errorMessage
+        details: errorMessage,
+        errorName: errorName
       },
       { status: 500 }
     );
