@@ -1,64 +1,115 @@
-import Image from "next/image";
+import { prisma } from "@/lib/prisma";
+import Link from "next/link";
+import { Building2, Plus } from "lucide-react";
 
-export default function Home() {
+export default async function HomePage() {
+  let clients: Array<{
+    id: string;
+    name: string;
+    contactInfo: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    _count: { pos: number };
+  }> = [];
+  try {
+    clients = await prisma.client.findMany({
+      include: {
+        _count: {
+          select: { pos: true },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("Database error:", error);
+    }
+    clients = [];
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <img
+                src="/assets/logo-mark.png"
+                alt="Laapak Logo"
+                className="w-10 h-10 object-contain"
+              />
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Laapak PO</h1>
+                <p className="text-xs sm:text-sm text-gray-500">Price Offer Generator</p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard/clients/new"
+              className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors text-sm sm:text-base w-full sm:w-auto justify-center"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              <Plus size={18} className="sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline">New Client</span>
+              <span className="sm:hidden">New</span>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-gray-900">Clients</h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Manage your clients and their Price Offers
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+
+        {clients.length === 0 ? (
+          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
+            <Building2 size={48} className="mx-auto text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              No clients yet
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Get started by creating your first client.
+            </p>
+            <Link
+              href="/dashboard/clients/new"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors"
+            >
+              <Plus size={20} />
+              Create Client
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {clients.map((client) => (
+              <Link
+                key={client.id}
+                href={`/dashboard/clients/${client.id}`}
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:border-green-500 hover:shadow-md transition-all"
+              >
+                <div className="flex items-start justify-between mb-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Building2 size={24} className="text-green-600" />
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {client._count.pos} POs
+                  </span>
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  {client.name}
+                </h3>
+                {client.contactInfo && (
+                  <p className="text-sm text-gray-600 line-clamp-2">
+                    {client.contactInfo}
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
       </main>
     </div>
   );

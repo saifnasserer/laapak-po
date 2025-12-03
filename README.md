@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Laapak PO - Price Offer Generator
+
+A modern, web-based Price Offer (PO) generation system for B2B clients. Built with Next.js, PostgreSQL (via Prisma), and Tailwind CSS.
+
+## Features
+
+- ✅ Client Management - Create and manage B2B clients
+- ✅ Price Offer Creation - Generate professional price offers with line items
+- ✅ Public Sharing - Share price offers via public links
+- ✅ PDF Export - Download price offers as PDFs
+- ✅ Status Management - Track offer status (Pending, Approved, Expired)
+- ✅ Automatic Expiration - POs automatically expire based on validity date
+- ✅ View Tracking - Track when price offers are viewed
+- ✅ Responsive Design - Mobile-friendly interface
+- ✅ Brand Customization - Laapak brand styling
+
+## Tech Stack
+
+- **Framework**: Next.js 16 (App Router)
+- **Database**: MySQL (via Prisma ORM)
+- **Styling**: Tailwind CSS
+- **PDF Generation**: Puppeteer
+- **Language**: TypeScript
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ and npm
+- MySQL database (8.0+)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd laapak-po-web
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edit `.env` with your database connection:
+```env
+DATABASE_URL="mysql://user:password@localhost:3306/laapak_po"
+NODE_ENV="development"
+```
 
-## Learn More
+4. Set up the database:
+```bash
+# Generate Prisma Client
+npm run db:generate
 
-To learn more about Next.js, take a look at the following resources:
+# Push schema to database
+npm run db:push
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Run the development server:
+```bash
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Deploy on Vercel
+## Available Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run db:push` - Push Prisma schema to database
+- `npm run db:migrate` - Run database migrations
+- `npm run db:generate` - Generate Prisma Client
+- `npm run db:studio` - Open Prisma Studio
+- `npm run type-check` - Type check TypeScript
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+laapak-po-web/
+├── src/
+│   ├── app/
+│   │   ├── api/              # API routes
+│   │   ├── dashboard/        # Dashboard pages
+│   │   ├── p/                # Public PO pages
+│   │   └── page.tsx          # Home page
+│   └── lib/
+│       ├── prisma.ts         # Prisma client
+│       └── utils.ts          # Utility functions
+├── prisma/
+│   └── schema.prisma         # Database schema
+├── public/
+│   └── assets/               # Static assets
+└── package.json
+```
+
+## Production Deployment
+
+See [PRODUCTION.md](./PRODUCTION.md) for detailed production deployment instructions.
+
+Quick deployment options:
+- **Vercel** (Recommended) - Automatic deployments, SSL, CDN
+- **Self-hosted** - Nginx + PM2
+- **Docker** - Containerized deployment
+
+## Database Schema
+
+- **Client** - B2B client information
+- **PurchaseOffer** - Price offers with settings and visibility toggles
+- **LineItem** - Individual items in a price offer
+- **POView** - View tracking for analytics
+
+## Security
+
+- Environment variables for sensitive data
+- Security headers configured
+- Input validation on all API routes
+- SQL injection protection via Prisma
+
+## License
+
+Private - Laapak Internal Use
+
+## Support
+
+For issues or questions, please contact the development team.

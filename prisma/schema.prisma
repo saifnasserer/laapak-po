@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  contactInfo String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  pos         PurchaseOffer[]
+}
+
+model PurchaseOffer {
+  id                String   @id @default(uuid())
+  publicId          String   @unique
+  status            String   @default("DRAFT") // DRAFT, PUBLISHED, EXPIRED
+  clientId          String
+  client            Client   @relation(fields: [clientId], references: [id])
+  validUntil        DateTime?
+  currency          String   @default("EGP")
+  taxRate           Float    @default(0)
+  paymentTerms      String?  @db.Text
+  warranty          String?  @db.Text
+  termsAndConditions String? @db.Text
+  showProductOverview Boolean @default(true)
+  showWarranty      Boolean  @default(true)
+  showPricingSummary Boolean  @default(true)
+  showWhyLaapak      Boolean  @default(true)
+  showPaymentTerms   Boolean  @default(true)
+  showTermsAndConditions Boolean @default(true)
+  showApproval       Boolean  @default(true)
+  items             LineItem[]
+  views             POView[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model LineItem {
+  id                String   @id @default(uuid())
+  poId              String
+  po                PurchaseOffer @relation(fields: [poId], references: [id])
+  model             String
+  quantity          Int
+  price             Float
+  specs             String?  @db.Text
+  qcProcess         String?  @db.Text
+  notes             String?  @db.Text
+  deliveryTime      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model POView {
+  id          String   @id @default(uuid())
+  poId        String
+  po          PurchaseOffer @relation(fields: [poId], references: [id])
+  viewedAt    DateTime @default(now())
+  userAgent   String?
+}
