@@ -5,6 +5,15 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   
+  // Server configuration
+  ...(process.env.PORT && {
+    experimental: {
+      serverActions: {
+        bodySizeLimit: '2mb',
+      },
+    },
+  }),
+  
   // Security headers
   async headers() {
     return [
