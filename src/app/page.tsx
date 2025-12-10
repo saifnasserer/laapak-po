@@ -13,6 +13,7 @@ export default async function HomePage() {
     _count: { pos: number };
   }> = [];
   try {
+    console.log("[HomePage] Fetching clients from database...");
     clients = await prisma.client.findMany({
       include: {
         _count: {
@@ -21,12 +22,14 @@ export default async function HomePage() {
       },
       orderBy: { createdAt: "desc" },
     });
+    console.log(`[HomePage] Successfully fetched ${clients.length} clients`);
+    console.log("[HomePage] Client names:", clients.map(c => c.name));
   } catch (error) {
     // Always log errors in both development and production
-    console.error("Database error:", error);
+    console.error("[HomePage] Database error:", error);
     if (error instanceof Error) {
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
+      console.error("[HomePage] Error message:", error.message);
+      console.error("[HomePage] Error stack:", error.stack);
     }
     clients = [];
   }
