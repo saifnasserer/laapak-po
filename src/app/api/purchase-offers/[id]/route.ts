@@ -10,7 +10,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { clientId, currency, taxRate, validUntil, status, paymentTerms, warranty, termsAndConditions, showProductOverview, showWarranty, showPricingSummary, showWhyLaapak, showPaymentTerms, showTermsAndConditions, showApproval, items: bodyItems } = body;
+    const { clientId, currency, taxRate, discount, validUntil, status, paymentTerms, warranty, termsAndConditions, showProductOverview, showWarranty, showPricingSummary, showWhyLaapak, showPaymentTerms, showTermsAndConditions, showApproval, items: bodyItems } = body;
     items = bodyItems;
 
     // Check if PO exists
@@ -68,8 +68,9 @@ export async function PUT(
 
 3- Warranty for periodic maintenance for a full year provided that maintenance is performed at the company's warranty center twice, once every six months from the date of receipt of the laptop`;
 
-    // Parse taxRate as number
+    // Parse taxRate and discount as numbers
     const taxRateNum = taxRate ? Number(taxRate) : 0;
+    const discountNum = discount ? Number(discount) : 0;
     const validUntilDate = validUntil ? new Date(validUntil) : null;
 
     // Delete existing items first
@@ -83,6 +84,7 @@ export async function PUT(
       data: {
         currency: currency || "EGP",
         taxRate: taxRateNum,
+        discount: discountNum,
         validUntil: validUntilDate,
         status: status || "DRAFT",
         paymentTerms: paymentTerms?.trim() || null,

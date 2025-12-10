@@ -25,6 +25,7 @@ model PurchaseOffer {
   validUntil        DateTime?
   currency          String   @default("EGP")
   taxRate           Float    @default(0)
+  discount          Float    @default(0)
   paymentTerms      String?  @db.Text
   warranty          String?  @db.Text
   termsAndConditions String? @db.Text

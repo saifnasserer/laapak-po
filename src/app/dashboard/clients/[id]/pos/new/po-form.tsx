@@ -25,6 +25,7 @@ interface PurchaseOffer {
   id: string;
   currency: string;
   taxRate: number;
+  discount: number;
   validUntil: string | null;
   status: string;
   paymentTerms: string | null;
@@ -96,6 +97,7 @@ export function POForm({ clientId, initialData }: POFormProps) {
   
   const [currency, setCurrency] = useState(initialData?.currency || "EGP");
   const [taxRate, setTaxRate] = useState(initialData?.taxRate || 0);
+  const [discount, setDiscount] = useState(initialData?.discount || 0);
   // Set default validUntil to 3 days from now
   const getDefaultValidUntil = () => {
     if (initialData?.validUntil) {
@@ -250,6 +252,7 @@ export function POForm({ clientId, initialData }: POFormProps) {
           clientId,
           currency,
           taxRate: Number(taxRate) || 0,
+          discount: Number(discount) || 0,
           validUntil: validUntil || null,
           status,
           paymentTerms: paymentTerms.trim() || null,
@@ -324,8 +327,10 @@ export function POForm({ clientId, initialData }: POFormProps) {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const tax = subtotal * (taxRate / 100);
-  const total = subtotal + tax;
+  const discountAmount = Number(discount) || 0;
+  const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
+  const tax = subtotalAfterDiscount * (taxRate / 100);
+  const total = subtotalAfterDiscount + tax;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -449,7 +454,7 @@ export function POForm({ clientId, initialData }: POFormProps) {
       <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
         <h2 className="text-lg font-semibold text-gray-900">PO Settings</h2>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <label htmlFor="currency" className="block text-sm font-medium text-gray-700 mb-2">
               Currency
@@ -478,6 +483,21 @@ export function POForm({ clientId, initialData }: POFormProps) {
               onChange={(e) => setTaxRate(parseFloat(e.target.value) || 0)}
               min="0"
               max="100"
+              step="0.01"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="discount" className="block text-sm font-medium text-gray-700 mb-2">
+              Discount ({currency})
+            </label>
+            <input
+              type="number"
+              id="discount"
+              value={discount}
+              onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
+              min="0"
               step="0.01"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
             />
@@ -633,6 +653,12 @@ export function POForm({ clientId, initialData }: POFormProps) {
             <span>Subtotal:</span>
             <span>{formatCurrency(subtotal, currency)}</span>
           </div>
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-red-600">
+              <span>Discount:</span>
+              <span>-{formatCurrency(discountAmount, currency)}</span>
+            </div>
+          )}
           {taxRate > 0 && (
             <div className="flex justify-between text-gray-600">
               <span>Tax ({taxRate}%):</span>

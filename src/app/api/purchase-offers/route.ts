@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { clientId, currency, taxRate, validUntil, status, paymentTerms, warranty, termsAndConditions, showProductOverview, showWarranty, showPricingSummary, showWhyLaapak, showPaymentTerms, showTermsAndConditions, showApproval, items } = body;
+    const { clientId, currency, taxRate, discount, validUntil, status, paymentTerms, warranty, termsAndConditions, showProductOverview, showWarranty, showPricingSummary, showWhyLaapak, showPaymentTerms, showTermsAndConditions, showApproval, items } = body;
 
     if (!clientId || typeof clientId !== "string") {
       return NextResponse.json(
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     // Convert and validate data types
     const taxRateNum = typeof taxRate === "string" ? parseFloat(taxRate) : (taxRate || 0);
+    const discountNum = typeof discount === "string" ? parseFloat(discount) : (discount || 0);
     const validUntilDate = validUntil ? new Date(validUntil) : null;
     
     const DEFAULT_WARRANTY = `1- Warranty (6 months) against maintenance defects.
@@ -87,6 +88,7 @@ export async function POST(request: NextRequest) {
         clientId,
         currency: currency || "EGP",
         taxRate: taxRateNum,
+        discount: discountNum,
         validUntil: validUntilDate,
         status: status || "DRAFT",
         paymentTerms: paymentTerms?.trim() || null,
