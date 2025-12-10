@@ -5,16 +5,22 @@ import { ArrowLeft, Plus, FileText, ExternalLink, Edit } from "lucide-react";
 import { formatCurrency, shouldBeExpired } from "@/lib/utils";
 import { DeletePOButton } from "./delete-po-button";
 import { DeleteClientButton } from "./delete-client-button";
+import { unstable_noStore as noStore } from 'next/cache';
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
+
+noStore(); // Explicitly disable caching
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
 export default async function ClientDetailPage({ params }: PageProps) {
+  noStore(); // Ensure no caching
   const { id } = await params;
   
   const client = await prisma.client.findUnique({

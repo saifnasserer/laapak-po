@@ -2,12 +2,18 @@ import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { Building2, Plus, Edit } from "lucide-react";
 import { DeleteClientButton } from "./dashboard/clients/[id]/delete-client-button";
+import { unstable_noStore as noStore } from 'next/cache';
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
+
+noStore(); // Explicitly disable caching
 
 export default async function HomePage() {
+  noStore(); // Ensure no caching
   let clients: Array<{
     id: string;
     name: string;
