@@ -21,11 +21,7 @@ model PurchaseOffer {
   publicId          String   @unique
   status            String   @default("DRAFT") // DRAFT, PUBLISHED, EXPIRED
   clientId          String
-<<<<<<< HEAD
-  client            Client   @relation(fields: [clientId], references: [id])
-=======
   client            Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
->>>>>>> bde19da (fixed the db issue)
   validUntil        DateTime?
   currency          String   @default("EGP")
   taxRate           Float    @default(0)
@@ -48,11 +44,7 @@ model PurchaseOffer {
 model LineItem {
   id                String   @id @default(uuid())
   poId              String
-<<<<<<< HEAD
-  po                PurchaseOffer @relation(fields: [poId], references: [id])
-=======
   po                PurchaseOffer @relation(fields: [poId], references: [id], onDelete: Cascade)
->>>>>>> bde19da (fixed the db issue)
   model             String
   quantity          Int
   price             Float
@@ -67,11 +59,7 @@ model LineItem {
 model POView {
   id          String   @id @default(uuid())
   poId        String
-<<<<<<< HEAD
-  po          PurchaseOffer @relation(fields: [poId], references: [id])
-=======
   po          PurchaseOffer @relation(fields: [poId], references: [id], onDelete: Cascade)
->>>>>>> bde19da (fixed the db issue)
   viewedAt    DateTime @default(now())
   userAgent   String?
 }
