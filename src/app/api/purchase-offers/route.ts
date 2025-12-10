@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generatePublicId } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -113,6 +114,11 @@ export async function POST(request: NextRequest) {
         client: true,
       },
     });
+
+    // Revalidate affected pages
+    revalidatePath("/");
+    revalidatePath(`/dashboard/clients/${clientId}`);
+    revalidatePath(`/dashboard/clients/${clientId}/pos/${po.id}`);
 
     return NextResponse.json(po, { status: 201 });
   } catch (error) {

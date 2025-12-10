@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function PUT(
   request: NextRequest,
@@ -37,6 +38,10 @@ export async function PUT(
         contactInfo: contactInfo?.trim() || null,
       },
     });
+
+    // Revalidate affected pages
+    revalidatePath("/");
+    revalidatePath(`/dashboard/clients/${id}`);
 
     return NextResponse.json(client);
   } catch (error) {
@@ -106,6 +111,10 @@ export async function DELETE(
     await prisma.client.delete({
       where: { id },
     });
+
+    // Revalidate the homepage to remove the deleted client
+    revalidatePath("/");
+    revalidatePath(`/dashboard/clients/${id}`, "page");
 
     return NextResponse.json({ success: true });
   } catch (error) {

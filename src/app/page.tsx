@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Building2, Plus, Edit } from "lucide-react";
 import { DeleteClientButton } from "./dashboard/clients/[id]/delete-client-button";
 import { unstable_noStore as noStore } from 'next/cache';
+import { headers } from 'next/headers';
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,8 @@ noStore(); // Explicitly disable caching
 
 export default async function HomePage() {
   noStore(); // Ensure no caching
+  // Use headers() to force dynamic rendering (this API is always dynamic)
+  await headers(); // This forces the route to be dynamic
   let clients: Array<{
     id: string;
     name: string;

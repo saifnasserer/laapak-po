@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,6 +20,10 @@ export async function POST(request: NextRequest) {
         contactInfo: contactInfo?.trim() || null,
       },
     });
+
+    // Revalidate the homepage to show the new client
+    revalidatePath("/");
+    revalidatePath(`/dashboard/clients/${client.id}`);
 
     return NextResponse.json(client, { status: 201 });
   } catch (error) {

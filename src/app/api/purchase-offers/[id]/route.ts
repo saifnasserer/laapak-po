@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 
 export async function PUT(
   request: NextRequest,
@@ -110,6 +111,11 @@ export async function PUT(
       },
     });
 
+    // Revalidate affected pages
+    revalidatePath("/");
+    revalidatePath(`/dashboard/clients/${clientId}`);
+    revalidatePath(`/dashboard/clients/${clientId}/pos/${id}`);
+
     return NextResponse.json(po);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -163,10 +169,17 @@ export async function DELETE(
       );
     }
 
+    const clientId = existingPO.clientId;
+
     // Delete the PO (cascade deletes will handle related LineItems and POViews automatically)
     await prisma.purchaseOffer.delete({
       where: { id },
     });
+
+    // Revalidate affected pages
+    revalidatePath("/");
+    revalidatePath(`/dashboard/clients/${clientId}`);
+    revalidatePath(`/dashboard/clients/${clientId}/pos/${id}`, "page");
 
     return NextResponse.json({ success: true });
   } catch (error) {
