@@ -22,8 +22,11 @@ export default async function HomePage() {
       orderBy: { createdAt: "desc" },
     });
   } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.error("Database error:", error);
+    // Always log errors in both development and production
+    console.error("Database error:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
     }
     clients = [];
   }

@@ -23,13 +23,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(client, { status: 201 });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error creating client:", error);
-    } else {
-      console.error("Error creating client:", errorMessage);
-    }
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    // Always log full error details
+    console.error("Error creating client:", error);
+    console.error("Error details:", { errorMessage, errorStack });
     return NextResponse.json(
-      { error: "Failed to create client" },
+      { error: "Failed to create client", details: errorMessage },
       { status: 500 }
     );
   }

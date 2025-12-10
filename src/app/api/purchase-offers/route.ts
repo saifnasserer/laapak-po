@@ -119,12 +119,10 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;
     
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error creating Price Offer:", error);
-      console.error("Error details:", { errorMessage, errorStack });
-    } else {
-      console.error("Error creating Price Offer:", { errorMessage });
-    }
+    // Always log full error details
+    console.error("Error creating Price Offer:", error);
+    console.error("Error details:", { errorMessage, errorStack });
+    
     return NextResponse.json(
       { error: "Failed to create Price Offer", details: errorMessage },
       { status: 500 }
