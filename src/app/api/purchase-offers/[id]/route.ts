@@ -163,6 +163,7 @@ export async function DELETE(
       );
     }
 
+<<<<<<< HEAD
     // Delete related records first (due to foreign key constraints)
     // Delete all line items
     await prisma.lineItem.deleteMany({
@@ -175,6 +176,9 @@ export async function DELETE(
     });
 
     // Now delete the PO
+=======
+    // Delete the PO (cascade deletes will handle related LineItems and POViews automatically)
+>>>>>>> bde19da (fixed the db issue)
     await prisma.purchaseOffer.delete({
       where: { id },
     });

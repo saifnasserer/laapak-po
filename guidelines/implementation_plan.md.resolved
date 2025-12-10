@@ -1,0 +1,59 @@
+# Implementation Plan - Laapak PO
+
+# Goal Description
+Build a web-based Price Offer (PO) Generator for Laapak. The system will allow internal staff to generate premium, corporate-grade POs for B2B clients. It will support two output formats: a responsive **Online Version** (via public link) and a pixel-perfect **Printable Version** (PDF). The system will be organized by "Clients" (mimicking a folder structure) and use secure, trackable links.
+
+## User Review Required
+> [!IMPORTANT]
+> **Tech Stack Selection**: We are proceeding with **Next.js** (App Router), **PostgreSQL** (via Prisma), **Tailwind CSS**, and **Puppeteer** for PDF generation.
+> **Hosting**: This stack requires a Node.js environment (e.g., Vercel, VPS). It cannot be hosted on static file hosting.
+
+## Proposed Changes
+
+### Project Structure & Tech Stack
+We will initialize a new Next.js project.
+
+*   **Framework**: Next.js 14+ (App Router)
+*   **Language**: TypeScript
+*   **Database**: PostgreSQL (managed via Prisma ORM)
+*   **Styling**: Tailwind CSS (with a custom "Premium" theme)
+*   **PDF Engine**: Puppeteer (running as a serverless function or API route)
+
+### Data Schema (Prisma)
+We will define the following core models:
+
+*   **Client**: Represents the "Folder".
+    *   `id`, `name`, `contactInfo`, `createdAt`
+*   **PurchaseOffer**: The actual PO document.
+    *   `id` (UUID), `publicId` (Short secure ID for links), `status` (Draft, Published, Expired)
+    *   `clientId`, `validUntil`, `currency`, `taxRate`
+*   **LineItem**: Products within a PO.
+    *   `poId`, `model`, `quantity`, `price`, `condition`, `specs`, `warranty`
+*   **POView**: Analytics for tracking opens.
+    *   `poId`, `viewedAt`, `userAgent`
+
+### Core Components
+
+#### [NEW] `src/app/dashboard`
+The internal interface for Laapak staff.
+*   **Client List**: Grid view of clients (folders).
+*   **PO Editor**: Form to create/edit POs with live preview.
+
+#### [NEW] `src/app/p/[publicId]`
+The public-facing PO page.
+*   **Responsive Design**: "Product Cards" layout as requested.
+*   **Print Styles**: CSS media queries to hide UI elements (buttons) when printing.
+
+#### [NEW] `src/lib/pdf`
+*   **PDF Generator**: Service to render the public page via Puppeteer and return a PDF buffer.
+
+## Verification Plan
+
+### Automated Tests
+*   **Unit Tests**: Verify price calculations (subtotals, taxes, discounts).
+*   **E2E Tests**: Use Playwright to verify the "Create PO" -> "View Public Link" flow.
+
+### Manual Verification
+1.  **Create a PO**: Input dummy data for "iPhone 13".
+2.  **Public Link**: Open the generated link in an incognito window.
+3.  **PDF Export**: Click "Download PDF" and verify the layout matches the "Printable" requirements (no background clutter, proper page breaks).
