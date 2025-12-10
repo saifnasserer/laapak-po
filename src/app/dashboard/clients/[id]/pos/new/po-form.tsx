@@ -327,10 +327,10 @@ export function POForm({ clientId, initialData }: POFormProps) {
   }
 
   const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * (taxRate / 100);
+  const totalBeforeDiscount = subtotal + tax;
   const discountAmount = Number(discount) || 0;
-  const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
-  const tax = subtotalAfterDiscount * (taxRate / 100);
-  const total = subtotalAfterDiscount + tax;
+  const total = Math.max(0, totalBeforeDiscount - discountAmount);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -653,16 +653,16 @@ export function POForm({ clientId, initialData }: POFormProps) {
             <span>Subtotal:</span>
             <span>{formatCurrency(subtotal, currency)}</span>
           </div>
-          {discountAmount > 0 && (
-            <div className="flex justify-between text-red-600">
-              <span>Discount:</span>
-              <span>-{formatCurrency(discountAmount, currency)}</span>
-            </div>
-          )}
           {taxRate > 0 && (
             <div className="flex justify-between text-gray-600">
               <span>Tax ({taxRate}%):</span>
               <span>{formatCurrency(tax, currency)}</span>
+            </div>
+          )}
+          {discountAmount > 0 && (
+            <div className="flex justify-between text-red-600">
+              <span>Discount:</span>
+              <span>-{formatCurrency(discountAmount, currency)}</span>
             </div>
           )}
           <div className="flex justify-between text-lg font-semibold text-gray-900 pt-2 border-t border-gray-200">

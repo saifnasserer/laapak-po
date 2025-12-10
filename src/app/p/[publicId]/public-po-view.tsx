@@ -50,10 +50,10 @@ interface PublicPOViewProps {
 
 export function PublicPOView({ po }: PublicPOViewProps) {
   const subtotal = po.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const tax = subtotal * (po.taxRate / 100);
+  const totalBeforeDiscount = subtotal + tax;
   const discountAmount = po.discount || 0;
-  const subtotalAfterDiscount = Math.max(0, subtotal - discountAmount);
-  const tax = subtotalAfterDiscount * (po.taxRate / 100);
-  const total = subtotalAfterDiscount + tax;
+  const total = Math.max(0, totalBeforeDiscount - discountAmount);
   
   // Check if all items have quantity of 1
   const allQuantitiesAreOne = po.items.every(item => item.quantity === 1);
@@ -224,16 +224,16 @@ export function PublicPOView({ po }: PublicPOViewProps) {
                   <td className="px-6 py-4 font-medium text-gray-900">Subtotal</td>
                   <td className="px-6 py-4 text-right font-medium text-gray-900">{formatCurrency(subtotal, po.currency)}</td>
                 </tr>
-                {discountAmount > 0 && (
-                  <tr>
-                    <td className="px-6 py-4 text-red-600">Discount</td>
-                    <td className="px-6 py-4 text-right text-red-600">-{formatCurrency(discountAmount, po.currency)}</td>
-                  </tr>
-                )}
                 {po.taxRate > 0 && (
                   <tr>
                     <td className="px-6 py-4 text-gray-700">Tax ({po.taxRate}%)</td>
                     <td className="px-6 py-4 text-right text-gray-700">{formatCurrency(tax, po.currency)}</td>
+                  </tr>
+                )}
+                {discountAmount > 0 && (
+                  <tr>
+                    <td className="px-6 py-4 text-red-600">Discount</td>
+                    <td className="px-6 py-4 text-right text-red-600">-{formatCurrency(discountAmount, po.currency)}</td>
                   </tr>
                 )}
                 <tr className="bg-green-50 border-t-2 border-green-600">
