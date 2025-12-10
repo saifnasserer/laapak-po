@@ -3,6 +3,10 @@ import Link from "next/link";
 import { Building2, Plus, Edit } from "lucide-react";
 import { DeleteClientButton } from "./dashboard/clients/[id]/delete-client-button";
 
+// Force dynamic rendering - don't cache this page
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function HomePage() {
   let clients: Array<{
     id: string;
