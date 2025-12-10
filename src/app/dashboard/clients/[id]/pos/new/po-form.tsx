@@ -314,8 +314,7 @@ export function POForm({ clientId, initialData }: POFormProps) {
       
       // Redirect after a short delay to show success message
       setTimeout(() => {
-        router.push(`/dashboard/clients/${clientId}/pos/${po.id}`);
-        router.refresh();
+        window.location.href = `/dashboard/clients/${clientId}/pos/${po.id}`;
       }, 1000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");

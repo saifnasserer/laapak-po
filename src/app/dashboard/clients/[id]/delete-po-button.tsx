@@ -31,8 +31,8 @@ export function DeletePOButton({ poId, clientId }: DeletePOButtonProps) {
         throw new Error(data.error || "Failed to delete Price Offer");
       }
 
-      // Refresh the page to show updated list
-      router.refresh();
+      // Redirect to client page to show updated list (force fresh data)
+      window.location.href = `/dashboard/clients/${clientId}`;
     } catch (error) {
       alert(error instanceof Error ? error.message : "Failed to delete Price Offer");
       setIsDeleting(false);

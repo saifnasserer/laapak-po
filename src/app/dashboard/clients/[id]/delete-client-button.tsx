@@ -31,9 +31,8 @@ export function DeleteClientButton({ clientId, clientName }: DeleteClientButtonP
         throw new Error(data.error || "Failed to delete client");
       }
 
-      // Redirect to home page after successful deletion
-      router.push("/");
-      router.refresh();
+      // Force a hard refresh to show updated data
+      window.location.href = "/";
     } catch (error) {
       alert(error instanceof Error ? error.message : "Failed to delete client");
       setIsDeleting(false);

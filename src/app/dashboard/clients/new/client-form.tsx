@@ -36,8 +36,8 @@ export function ClientForm() {
       }
 
       const client = await response.json();
-      router.push(`/dashboard/clients/${client.id}`);
-      router.refresh();
+      // Navigate to the new client page (this will fetch fresh data)
+      window.location.href = `/dashboard/clients/${client.id}`;
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setIsSubmitting(false);

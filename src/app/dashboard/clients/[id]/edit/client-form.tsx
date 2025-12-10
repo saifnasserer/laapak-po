@@ -44,8 +44,8 @@ export function ClientForm({ clientId, initialData }: ClientFormProps) {
         throw new Error(data.error || "Failed to update client");
       }
 
-      router.push(`/dashboard/clients/${clientId}`);
-      router.refresh();
+      // Force a hard refresh to show updated data
+      window.location.href = `/dashboard/clients/${clientId}`;
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setIsSubmitting(false);
