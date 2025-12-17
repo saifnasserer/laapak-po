@@ -21,9 +21,33 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/clients/route.ts:23',message:'POST /api/clients - Client created',data:{clientId:client.id,clientName:client.name,nodeEnv:process.env.NODE_ENV},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+
     // Revalidate the homepage to show the new client
-    revalidatePath("/");
-    revalidatePath(`/dashboard/clients/${client.id}`);
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/clients/route.ts:28',message:'POST /api/clients - Before revalidatePath',data:{paths:['/','/dashboard/clients/'+client.id]},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    
+    try {
+      // Revalidate both page and layout to ensure complete cache invalidation
+      revalidatePath("/", "page");
+      revalidatePath("/", "layout");
+      revalidatePath(`/dashboard/clients/${client.id}`, "page");
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/clients/route.ts:35',message:'POST /api/clients - After revalidatePath',data:{success:true,revalidated:['/ (page)','/ (layout)','/dashboard/clients/'+client.id+' (page)']},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+    } catch (revalidateError) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/clients/route.ts:39',message:'POST /api/clients - revalidatePath error',data:{error:revalidateError instanceof Error ? revalidateError.message : String(revalidateError)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      console.error("revalidatePath error:", revalidateError);
+    }
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/clients/route.ts:42',message:'POST /api/clients - Returning response',data:{clientId:client.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
 
     return NextResponse.json(client, { status: 201 });
   } catch (error) {
