@@ -15,6 +15,7 @@ noStore(); // Explicitly disable caching
 
 export default async function HomePage() {
   // #region agent log
+  console.log("[DEBUG] HomePage - Render start, NODE_ENV:", process.env.NODE_ENV, "Timestamp:", new Date().toISOString());
   fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:16',message:'HomePage - Render start',data:{timestamp:Date.now(),nodeEnv:process.env.NODE_ENV},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
   // #endregion
   
@@ -23,6 +24,7 @@ export default async function HomePage() {
   await headers(); // This forces the route to be dynamic
   
   // #region agent log
+  console.log("[DEBUG] HomePage - After noStore and headers");
   fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:22',message:'HomePage - After noStore and headers',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
   // #endregion
   
@@ -38,6 +40,7 @@ export default async function HomePage() {
     console.log("[HomePage] Fetching clients from database...");
     
     // #region agent log
+    console.log("[DEBUG] HomePage - Before DB query");
     fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:35',message:'HomePage - Before DB query',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
     // #endregion
     
@@ -51,6 +54,13 @@ export default async function HomePage() {
     });
     
     // #region agent log
+    console.log("[DEBUG] HomePage - After DB query:", {
+      clientCount: clients.length,
+      clientIds: clients.map(c => c.id),
+      clientNames: clients.map(c => c.name),
+      newestClientId: clients[0]?.id,
+      newestClientName: clients[0]?.name
+    });
     fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/page.tsx:50',message:'HomePage - After DB query',data:{clientCount:clients.length,clientIds:clients.map(c=>c.id),clientNames:clients.map(c=>c.name),newestClientId:clients[0]?.id,newestClientName:clients[0]?.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
     // #endregion
     
