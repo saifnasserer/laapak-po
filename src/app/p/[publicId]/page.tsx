@@ -23,9 +23,9 @@ export default async function PublicPOPage({ params }: PageProps) {
     notFound();
   }
 
-  // Check if PO should be expired and update if needed
+  // Check if PO should be expired and update if needed (only expire POs with DRAFT/PENDING status)
   let finalPO = po;
-  if (po.validUntil && po.status !== "EXPIRED" && shouldBeExpired(po.validUntil)) {
+  if (po.validUntil && po.status === "DRAFT" && shouldBeExpired(po.validUntil)) {
     await prisma.purchaseOffer.update({
       where: { id: po.id },
       data: { status: "EXPIRED" },

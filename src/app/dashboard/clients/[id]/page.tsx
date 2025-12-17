@@ -42,10 +42,10 @@ export default async function ClientDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Check and update expired POs
+  // Check and update expired POs (only expire POs with DRAFT/PENDING status)
   const expiredPOs = client.pos.filter(po => 
     po.validUntil && 
-    po.status !== "EXPIRED" && 
+    po.status === "DRAFT" && 
     shouldBeExpired(po.validUntil)
   );
 

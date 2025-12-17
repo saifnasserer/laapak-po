@@ -2,6 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    
+    const client = await prisma.client.findUnique({
+      where: { id },
+      include: {
+        _count: {
+          select: { pos: true },
+        },
+      },
+    });
+
+    if (!client) {
+      return NextResponse.json(
+        { error: "Client not found" },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json(client);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Failed to fetch client" },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -80,7 +112,7 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Check if client exists
+    // Check if client exists and get PO count for response
     const existingClient = await prisma.client.findUnique({
       where: { id },
       include: {
@@ -97,17 +129,10 @@ export async function DELETE(
       );
     }
 
-    // Check if client has purchase offers
-    if (existingClient._count.pos > 0) {
-      return NextResponse.json(
-        { 
-          error: "Cannot delete client with existing Price Offers. Please delete all Price Offers first.",
-        },
-        { status: 400 }
-      );
-    }
+    const poCount = existingClient._count.pos;
 
-    // Delete the client
+    // Delete the client (cascade delete will automatically delete all related POs, LineItems, and POViews)
+    // The Prisma schema has onDelete: Cascade configured
     await prisma.client.delete({
       where: { id },
     });
@@ -116,7 +141,10 @@ export async function DELETE(
     revalidatePath("/");
     revalidatePath(`/dashboard/clients/${id}`, "page");
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ 
+      success: true,
+      deletedPOs: poCount 
+    });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;

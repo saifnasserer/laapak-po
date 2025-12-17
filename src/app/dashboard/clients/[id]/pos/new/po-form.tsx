@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2, FileText, CheckCircle } from "lucide-react";
+import { Plus, Trash2, FileText, CheckCircle, Copy, Check, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 const DEFAULT_WARRANTY = `1- Warranty for periodic maintenance for a full year.
@@ -94,6 +94,10 @@ export function POForm({ clientId, initialData }: POFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [poLink, setPoLink] = useState("");
+  const [copied, setCopied] = useState(false);
+  const [createdPoId, setCreatedPoId] = useState<string | null>(null);
   
   const [currency, setCurrency] = useState(initialData?.currency || "EGP");
   const [taxRate, setTaxRate] = useState(initialData?.taxRate || 0);
@@ -310,15 +314,24 @@ export function POForm({ clientId, initialData }: POFormProps) {
         throw new Error("Failed to parse server response. Please try again.");
       }
       
-      // Show success message briefly before redirecting
-      setSuccess(true);
       setIsSubmitting(false);
       setError(null);
       
-      // Redirect after a short delay to show success message
-      setTimeout(() => {
-        window.location.href = `/dashboard/clients/${clientId}/pos/${po.id}`;
-      }, 1000);
+      // If this is a new PO (not an update), show the link dialog overlay
+      if (!initialData && po.publicId) {
+        const baseUrl = window.location.origin;
+        const publicLink = `${baseUrl}/p/${po.publicId}`;
+        setPoLink(publicLink);
+        setCreatedPoId(po.id);
+        setShowLinkDialog(true);
+        setSuccess(true);
+      } else {
+        // For updates, show success and redirect
+        setSuccess(true);
+        setTimeout(() => {
+          window.location.href = `/dashboard/clients/${clientId}/pos/${po.id}`;
+        }, 1000);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setIsSubmitting(false);
@@ -333,6 +346,7 @@ export function POForm({ clientId, initialData }: POFormProps) {
   const total = Math.max(0, totalBeforeDiscount - discountAmount);
 
   return (
+    <>
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Line Items */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
@@ -711,6 +725,100 @@ export function POForm({ clientId, initialData }: POFormProps) {
         </button>
       </div>
     </form>
+    
+    {/* PO Link Dialog */}
+    {showLinkDialog && (
+      <div 
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] p-4"
+        onClick={(e) => {
+          // Close dialog if clicking on backdrop (not the dialog itself)
+          if (e.target === e.currentTarget) {
+            setShowLinkDialog(false);
+            router.push(`/dashboard/clients/${clientId}`);
+          }
+        }}
+      >
+        <div 
+          className="bg-white rounded-lg shadow-xl max-w-md w-full p-6 relative z-[10000]"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">Price Offer Created!</h3>
+            <button
+              onClick={() => {
+                setShowLinkDialog(false);
+                router.push(`/dashboard/clients/${clientId}`);
+              }}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          
+          <p className="text-sm text-gray-600 mb-4">
+            Your Price Offer has been created. Share this link with your client:
+          </p>
+          
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={poLink}
+                readOnly
+                className="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 font-mono"
+                onClick={(e) => (e.target as HTMLInputElement).select()}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(poLink);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  } catch (err) {
+                    // Fallback for older browsers
+                    const textArea = document.createElement("textarea");
+                    textArea.value = poLink;
+                    textArea.style.position = "fixed";
+                    textArea.style.opacity = "0";
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(textArea);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }
+                }}
+                className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded transition-colors"
+                title="Copy link"
+              >
+                {copied ? <Check size={18} className="text-green-600" /> : <Copy size={18} />}
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            <button
+              onClick={() => {
+                setShowLinkDialog(false);
+                router.push(`/dashboard/clients/${clientId}`);
+              }}
+              className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-colors"
+            >
+              Done
+            </button>
+            <a
+              href={poLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center"
+            >
+              Open Link
+            </a>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 }
 
