@@ -7,8 +7,7 @@ const nextConfig: NextConfig = {
   
   // Allow cross-origin requests from po.laapak.com in development
   allowedDevOrigins: [
-    'http://po.laapak.com',
-    'https://po.laapak.com',
+    'po.laapak.com',
   ],
   
   // Server configuration
@@ -23,6 +22,24 @@ const nextConfig: NextConfig = {
   // Security headers
   async headers() {
     return [
+      // Allow cross-origin requests for Next.js static assets
+      {
+        source: "/_next/:path*",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "https://po.laapak.com",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type",
+          },
+        ],
+      },
       {
         source: "/:path*",
         headers: [
