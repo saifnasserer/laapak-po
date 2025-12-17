@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   
+  // Allow cross-origin requests from po.laapak.com in development
+  allowedDevOrigins: [
+    'http://po.laapak.com',
+    'https://po.laapak.com',
+  ],
+  
   // Server configuration
   ...(process.env.PORT && {
     experimental: {
