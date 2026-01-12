@@ -54,7 +54,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
           select: { pos: true },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: { updatedAt: "desc" },
     }) as any;
   } catch (error) {
     console.error("[HomePage] Database error:", error);
@@ -65,17 +65,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   // Separate into favorites and others
   const favoriteClients = clients
     .filter(c => favoriteIds.includes(c.id))
-    .slice(0, 3); // Limit favorites section to 3
+    .slice(0, 4); // Limit favorites section to 4 for compact row
 
   const otherClients = clients.filter(c => !favoriteIds.includes(c.id) || !favoriteClients.find(fav => fav.id === c.id));
 
+  // Helper Components moved outside to avoid re-creation on render
   const SectionHeading = ({ children, icon: Icon, count }: { children: React.ReactNode, icon?: any, count?: number }) => (
-    <div className="flex items-center justify-between mb-6 group">
+    <div className="flex items-center justify-between mb-4 group">
       <div className="flex items-center gap-2">
-        {Icon && <Icon size={20} className="text-green-600" />}
-        <h2 className="text-xl font-bold text-gray-900 tracking-tight">{children}</h2>
+        {Icon && <Icon size={18} className="text-green-600" />}
+        <h2 className="text-sm font-black text-gray-900 uppercase tracking-widest">{children}</h2>
         {count !== undefined && (
-          <span className="bg-gray-100 text-gray-500 text-xs font-semibold px-2 py-0.5 rounded-full">
+          <span className="bg-gray-100 text-gray-500 text-[10px] font-black px-2 py-0.5 rounded-full">
             {count}
           </span>
         )}
@@ -84,58 +85,55 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     </div>
   );
 
-  const ClientCard = ({ client, isFavorite }: { client: any, isFavorite: boolean }) => (
-    <div
-      key={client.id}
-      className="bg-white rounded-2xl border border-gray-100 p-6 hover:border-green-500 hover:shadow-xl hover:shadow-green-500/5 transition-all duration-300 group relative overflow-hidden"
-    >
-      {/* Decorative background element */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-green-50/50 to-transparent -mr-12 -mt-12 rounded-full group-hover:scale-150 transition-transform duration-500" />
+  const ClientCard = ({ client, isFavorite }: { client: any, isFavorite: boolean }) => {
+    const poCount = client._count?.pos || 0;
+    const updatedDate = client.updatedAt ? new Date(client.updatedAt).toLocaleDateString() : 'N/A';
 
-      <div className="flex items-start justify-between mb-5 relative">
-        <Link
-          href={`/dashboard/clients/${client.id}`}
-          className="w-14 h-14 bg-green-50 rounded-2xl flex items-center justify-center group-hover:bg-green-100 transition-colors duration-300"
-        >
-          <Building2 size={28} className="text-green-600" />
-        </Link>
-        <div className="flex items-center gap-1">
+    return (
+      <div
+        key={client.id}
+        className="bg-white rounded-2xl border border-gray-100 p-3 hover:border-green-500 hover:shadow-xl hover:shadow-green-500/5 transition-all duration-300 group flex items-center justify-between gap-3 text-right"
+        dir="rtl"
+      >
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <Link
+            href={`/dashboard/clients/${client.id}`}
+            className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center shrink-0 group-hover:bg-green-100 transition-colors duration-300"
+          >
+            <Building2 size={20} className="text-green-600" />
+          </Link>
+          <div className="min-w-0 flex-1">
+            <Link href={`/dashboard/clients/${client.id}`} className="block">
+              <h3 className="text-sm font-black text-gray-900 group-hover:text-green-600 transition-colors line-clamp-2 leading-[1.2] mb-1">
+                {client.name}
+              </h3>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tighter">
+                  {poCount} POs
+                </span>
+                <span className="w-1 h-1 bg-gray-200 rounded-full" />
+                <span className="text-[8px] font-medium text-gray-300 uppercase italic">
+                  {updatedDate}
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-0.5 shrink-0 flex-row-reverse">
           <FavoriteToggleButton clientId={client.id} initialIsFavorite={isFavorite} />
           <Link
             href={`/dashboard/clients/${client.id}/edit`}
-            className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-full transition-all duration-200"
+            className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-all duration-200"
             title={`Edit ${client.name}`}
           >
-            <Edit size={18} />
+            <Edit size={14} />
           </Link>
           <DeleteClientButton clientId={client.id} clientName={client.name} />
         </div>
       </div>
-
-      <Link href={`/dashboard/clients/${client.id}`} className="block relative">
-        <h3 className="text-lg font-bold text-gray-900 mb-1.5 group-hover:text-green-600 transition-colors line-clamp-1">
-          {client.name}
-        </h3>
-        {client.contactInfo && (
-          <p className="text-sm text-gray-500 line-clamp-2 min-h-[2.5rem] leading-relaxed">
-            {client.contactInfo}
-          </p>
-        )}
-        <div className="mt-4 flex items-center gap-3">
-          <div className="flex -space-x-2">
-            {[...Array(Math.min(client._count.pos, 3))].map((_, i) => (
-              <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-green-100 flex items-center justify-center text-[10px] font-bold text-green-700">
-                {i === 2 && client._count.pos > 3 ? '+' : ''}
-              </div>
-            ))}
-          </div>
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-            {client._count.pos} Price Offers
-          </span>
-        </div>
-      </Link>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
@@ -200,7 +198,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
             {favoriteClients.length > 0 && (
               <div>
                 <SectionHeading icon={Star} count={favoriteClients.length}>Favorites</SectionHeading>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {favoriteClients.map((client) => (
                     <ClientCard key={client.id} client={client} isFavorite={true} />
                   ))}
@@ -214,7 +212,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 <SectionHeading icon={Building2} count={otherClients.length}>
                   {favoriteClients.length > 0 ? "Other Clients" : "All Clients"}
                 </SectionHeading>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {otherClients.map((client) => (
                     <ClientCard key={client.id} client={client} isFavorite={favoriteIds.includes(client.id)} />
                   ))}
@@ -222,9 +220,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               </div>
             )}
 
-            {otherClients.length === 0 && favoriteClients.length === 0 && searchQuery && (
-              <div className="text-center py-20">
-                <p className="text-gray-500 text-lg">No clients found matching your search.</p>
+            {otherClients.length === 0 && favoriteClients.length === 0 && (
+              <div className="text-center py-20 bg-white rounded-3xl border border-gray-100">
+                <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">
+                  {searchQuery ? `No clients found matching "${searchQuery}"` : "No clients to display"}
+                </p>
+                <p className="text-[10px] text-gray-300 mt-2 italic font-mono">
+                  Database count: {clients.length}
+                </p>
               </div>
             )}
           </div>

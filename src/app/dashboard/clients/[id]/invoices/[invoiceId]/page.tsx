@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
-import { ArrowLeft, Download, Receipt, ShieldCheck, Building2, User, CheckCircle2, AlertCircle, Info, Hash, FileJson } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Building2, User, Info } from "lucide-react";
 import { PrintButton } from "@/app/dashboard/clients/components/PrintButton";
 
 export default async function InvoiceDetailPage({
@@ -60,31 +60,22 @@ export default async function InvoiceDetailPage({
             <main className="flex-1 max-w-5xl mx-auto w-full p-4 sm:p-8 space-y-8">
                 <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden print:shadow-none print:border-none">
                     {/* Document Header Section */}
-                    <div className="p-8 sm:p-12 border-b border-gray-100 bg-gradient-to-br from-gray-50 to-white">
-                        <div className="flex flex-col sm:flex-row justify-between gap-8">
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
-                                        <Receipt className="text-white" size={24} />
-                                    </div>
-                                    <div>
-                                        <h1 className="text-2xl font-black text-gray-900 tracking-tight uppercase">Electronic Invoice</h1>
-                                        <div className="flex items-center gap-2">
-                                            <p className="text-gray-400 text-[10px] font-black tracking-widest uppercase italic">ETA V{docData?.documentTypeVersion || '1.0'}</p>
-                                            <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                                            <p className="text-gray-400 text-[10px] font-black tracking-widest uppercase">Official Record</p>
-                                        </div>
-                                    </div>
+                    <div className="p-8 sm:p-12 border-b border-gray-100 bg-white">
+                        <div className="flex flex-col sm:flex-row justify-between items-start gap-8">
+                            <div className="space-y-4">
+                                <div>
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Electronic Document</p>
+                                    <h1 className="text-xl font-black text-gray-900 tracking-tight uppercase">Invoice #{invoice.internalId}</h1>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-x-8 gap-y-2">
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Internal ID</span>
-                                        <span className="text-sm font-black text-gray-900 font-mono">{invoice.internalId}</span>
-                                    </div>
-                                    <div className="flex flex-col">
                                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Activity Code</span>
                                         <span className="text-sm font-black text-gray-900 font-mono">{docData?.taxpayerActivityCode || 'N/A'}</span>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Version</span>
+                                        <span className="text-sm font-black text-gray-900 font-mono">{docData?.documentTypeVersion || '1.0'}</span>
                                     </div>
                                     <div className="flex flex-col col-span-2">
                                         <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">ETA UUID</span>
@@ -93,28 +84,14 @@ export default async function InvoiceDetailPage({
                                 </div>
                             </div>
 
-                            <div className="flex flex-col items-end justify-between">
+                            <div className="flex flex-col items-end gap-4">
                                 <div className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-sm border ${invoice.status === "Valid" ? "bg-green-50 text-green-700 border-green-100" : "bg-red-50 text-red-700 border-red-100"
                                     }`}>
                                     {invoice.status}
                                 </div>
-                                <div className="text-right space-y-1">
-                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Amount</p>
-                                    <p className="text-4xl font-black text-gray-900 tracking-tighter">
-                                        {formatCurrency(invoice.totalAmount, "EGP")}
-                                    </p>
-                                    <div className="flex flex-col gap-0.5 mt-2">
-                                        <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold text-gray-400">
-                                            <span>Issued:</span>
-                                            <span className="text-gray-600 uppercase tracking-wider">{new Date(invoice.dateTimeIssued).toLocaleString()}</span>
-                                        </div>
-                                        {rawFullDoc?.dateTimeReceived && (
-                                            <div className="flex items-center justify-end gap-1.5 text-[9px] font-bold text-gray-400">
-                                                <span>Received:</span>
-                                                <span className="text-gray-600 uppercase tracking-wider">{new Date(rawFullDoc.dateTimeReceived).toLocaleString()}</span>
-                                            </div>
-                                        )}
-                                    </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Issued Date</p>
+                                    <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">{new Date(invoice.dateTimeIssued).toLocaleString()}</p>
                                 </div>
                             </div>
                         </div>
@@ -310,35 +287,7 @@ export default async function InvoiceDetailPage({
                     <div className="h-3 bg-gradient-to-r from-blue-600 via-blue-900 to-gray-900" />
                 </div>
 
-                {/* Validation Results Section */}
-                {validationSteps.length > 0 && (
-                    <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm print:hidden">
-                        <div className="flex items-center gap-2 mb-8 border-b border-gray-50 pb-4">
-                            <ShieldCheck size={18} className="text-blue-500" />
-                            <h3 className="text-xs font-black text-gray-900 uppercase tracking-widest">ETA Validation History</h3>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {validationSteps.map((step: any, idx: number) => (
-                                <div key={idx} className="flex items-start gap-3 p-4 bg-gray-50/50 rounded-2xl border border-gray-100 transition-all hover:bg-gray-50">
-                                    <div className="mt-0.5">
-                                        {step.status === "Valid" ? (
-                                            <CheckCircle2 size={16} className="text-green-500" />
-                                        ) : (
-                                            <AlertCircle size={16} className="text-red-500" />
-                                        )}
-                                    </div>
-                                    <div className="space-y-1">
-                                        <p className="text-[10px] font-black text-gray-900 leading-tight">{step.name.replace(/^Step-\d+\./, '')}</p>
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter">{step.status}</p>
-                                        {step.error && (
-                                            <p className="text-[9px] font-bold text-red-500 italic mt-1 leading-tight">{step.error.innerError?.message || 'Check failed'}</p>
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
+
 
                 <div className="text-center space-y-2 pb-12">
                     <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.3em]">
