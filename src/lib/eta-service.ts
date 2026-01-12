@@ -213,11 +213,11 @@ export async function fetchAllFullInvoices(
                         const totalTax = docData.taxTotals?.reduce((sum: number, tax: any) => sum + tax.amount, 0) ||
                             fullDoc.taxTotals?.reduce((sum: number, tax: any) => sum + tax.amount, 0) || 0;
 
-                        await prisma.eTAInvoice.upsert({
+                        await (prisma as any).eTAInvoice.upsert({
                             where: { uuid: fullDoc.uuid },
                             update: {
                                 status: fullDoc.status,
-                                fullDocument: fullDoc,
+                                fullDocument: fullDoc as any,
                                 totalSalesAmount: docData.totalSalesAmount || fullDoc.totalSalesAmount || 0,
                                 totalDiscountAmount: docData.totalDiscountAmount || fullDoc.totalDiscountAmount || 0,
                                 netAmount: docData.netAmount || fullDoc.netAmount || 0,
@@ -243,7 +243,7 @@ export async function fetchAllFullInvoices(
                                 totalTax: totalTax,
                                 totalAmount: docData.totalAmount || fullDoc.totalAmount || 0,
                                 status: fullDoc.status,
-                                fullDocument: fullDoc,
+                                fullDocument: fullDoc as any,
                             },
                         });
 
