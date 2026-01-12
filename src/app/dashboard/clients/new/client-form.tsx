@@ -36,18 +36,18 @@ export function ClientForm() {
       }
 
       const client = await response.json();
-      
+
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/clients/new/client-form.tsx:38',message:'ClientForm - Client created successfully',data:{clientId:client.id,clientName:client.name},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/clients/new/client-form.tsx:38', message: 'ClientForm - Client created successfully', data: { clientId: client.id, clientName: client.name }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
       // #endregion
-      
+
       // Refresh the router cache to ensure homepage shows new client
       router.refresh();
-      
+
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'dashboard/clients/new/client-form.tsx:45',message:'ClientForm - Router refreshed, redirecting',data:{redirectTo:'/dashboard/clients/'+client.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/bcb70cbe-853b-467e-af13-77a09249f6df', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/clients/new/client-form.tsx:45', message: 'ClientForm - Router refreshed, redirecting', data: { redirectTo: '/dashboard/clients/' + client.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
       // #endregion
-      
+
       // Navigate to the new client page (this will fetch fresh data)
       // Use router.push with refresh to ensure cache is cleared
       router.push(`/dashboard/clients/${client.id}`);

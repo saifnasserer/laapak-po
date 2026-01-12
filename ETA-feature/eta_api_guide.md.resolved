@@ -1,0 +1,50 @@
+# ETA E-Invoicing API Guide
+
+This guide summarizes the technical details for interacting with the Egyptian Tax Authority (ETA) E-Invoicing API, focusing on document retrieval and filtering.
+
+## 1. Authentication
+- **Grant Type**: `client_credentials`
+- **Scope**: `InvoicingAPI`
+- **Endpoint**: Configured via `ETA_AUTH_URL`
+
+## 2. Document Search API
+The primary endpoint for targeted retrieval is `GET /api/v1.0/documents/search`.
+
+### Valid Query Parameters
+
+| Parameter | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `direction` | String | **Yes** (when filtering) | `Sent` (Sales) or `Received` (Purchases). |
+| `submissionDateFrom` | DateTime | Conditionally | Start date of submission (UTC). Required if `submissionDateTo` is used. |
+| `submissionDateTo` | DateTime | Conditionally | End date of submission (UTC). Required if `submissionDateFrom` is used. |
+| `issueDateFrom` | DateTime | Conditionally | Start date of issuance. Required if `issueDateTo` is used. |
+| `issueDateTo` | DateTime | Conditionally | End date of issuance. Required if `issueDateFrom` is used. |
+| `receiverId` | String | No | Recipient Tax Registration Number. **Requires `direction=Sent`**. |
+| `issuerId` | String | No | Issuer Tax Registration Number. **Requires `direction=Received`**. |
+| `pageSize` | Number | No | Results per page (Max: 100, Default: 10). |
+| `continuationToken` | String | No | Token for fetching the next page of results. |
+
+### Critical Constraints
+> [!IMPORTANT]
+> **Direction is Mandatory for Filtering**: If you filter by `receiverId`, you **must** set `direction=Sent`. If you filter by `issuerId`, you **must** set `direction=Received`.
+
+> [!IMPORTANT]
+> **Date Range Pairing**: Date parameters must come in pairs. Providing a `From` date without a [To](file:///media/saif/brain/Projects/Laapak-Softwares/Laapak%20PO/ETA-feature/fetch_full_invoices.js#18-39) date (or vice versa) will result in a **400 Bad Request**.
+
+## 3. Request Formatting
+
+### Date Format
+Dates must be in a specific format (usually ISO 8601 without milliseconds is safest):
+`YYYY-MM-DDThh:mm:ssZ`
+
+### Example Search Request
+```bash
+GET /api/v1.0/documents/search?direction=Sent&receiverId=123456789&submissionDateFrom=2024-01-01T00:00:00Z&submissionDateTo=2024-01-31T23:59:59Z&pageSize=50
+```
+
+## 4. Troubleshooting "400 Bad Request"
+Common causes for 400 errors with ETA:
+1.  **Missing Direction**: Attempting to filter by `receiverId` without `direction=Sent`.
+2.  **Unbalanced Dates**: Providing `submissionDateFrom` but omitting `submissionDateTo`.
+3.  **Invalid Date Format**: Using milliseconds (e.g., `.000Z`) which some ETA environments fail to parse.
+4.  **Date Range Too Large**: Some environments limit the range to 30 days per request.

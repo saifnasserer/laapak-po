@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    
+
     const client = await prisma.client.findUnique({
       where: { id },
       include: {
@@ -41,13 +41,31 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, contactInfo } = body;
+    const { name, contactInfo, taxRegistrationNumber } = body;
 
-    if (!name || typeof name !== "string" || name.trim().length === 0) {
-      return NextResponse.json(
-        { error: "Client name is required" },
-        { status: 400 }
-      );
+    // Build update object based on provided fields
+    const data: any = {};
+    if (name !== undefined) {
+      if (typeof name !== "string" || name.trim().length === 0) {
+        return NextResponse.json(
+          { error: "Client name cannot be empty" },
+          { status: 400 }
+        );
+      }
+      data.name = name.trim();
+    }
+
+    if (contactInfo !== undefined) {
+      data.contactInfo = contactInfo?.trim() || null;
+    }
+
+    if (taxRegistrationNumber !== undefined) {
+      data.taxRegistrationNumber = taxRegistrationNumber?.trim() || null;
+    }
+
+    // If no fields provided, return early
+    if (Object.keys(data).length === 0) {
+      return NextResponse.json({ message: "No changes provided" });
     }
 
     // Check if client exists
@@ -65,10 +83,7 @@ export async function PUT(
     // Update client
     const client = await prisma.client.update({
       where: { id },
-      data: {
-        name: name.trim(),
-        contactInfo: contactInfo?.trim() || null,
-      },
+      data,
     });
 
     // Revalidate affected pages
@@ -80,12 +95,12 @@ export async function PUT(
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;
     const errorName = error instanceof Error ? error.name : "Error";
-    
+
     if (process.env.NODE_ENV === "development") {
       console.error("Error updating client:", error);
-      console.error("Error details:", { 
+      console.error("Error details:", {
         errorName,
-        errorMessage, 
+        errorMessage,
         errorStack,
       });
     } else {
@@ -95,7 +110,7 @@ export async function PUT(
       });
     }
     return NextResponse.json(
-      { 
+      {
         error: "Failed to update client",
         details: errorMessage,
         errorName: errorName
@@ -141,20 +156,20 @@ export async function DELETE(
     revalidatePath("/");
     revalidatePath(`/dashboard/clients/${id}`, "page");
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      deletedPOs: poCount 
+      deletedPOs: poCount
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
     const errorStack = error instanceof Error ? error.stack : undefined;
     const errorName = error instanceof Error ? error.name : "Error";
-    
+
     if (process.env.NODE_ENV === "development") {
       console.error("Error deleting client:", error);
-      console.error("Error details:", { 
+      console.error("Error details:", {
         errorName,
-        errorMessage, 
+        errorMessage,
         errorStack,
       });
     } else {
@@ -164,7 +179,7 @@ export async function DELETE(
       });
     }
     return NextResponse.json(
-      { 
+      {
         error: "Failed to delete client",
         details: errorMessage,
         errorName: errorName
