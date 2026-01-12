@@ -43,7 +43,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     _count: { pos: number };
   }
 
-  let clients: ClientWithCount[] = [];
+  let clients: any[] = [];
   try {
     clients = await prisma.client.findMany({
       where: searchQuery ? {
@@ -53,9 +53,33 @@ export default async function HomePage({ searchParams }: HomePageProps) {
         _count: {
           select: { pos: true },
         },
-      },
-      orderBy: { updatedAt: "desc" },
+        pos: {
+          orderBy: { updatedAt: 'desc' },
+          take: 1,
+          select: { updatedAt: true }
+        },
+        etaInvoices: {
+          orderBy: { dateTimeIssued: 'desc' },
+          take: 1,
+          select: { dateTimeIssued: true }
+        }
+      } as any,
     }) as any;
+
+    // Smart Sorting by latest activity (last PO or last Invoice)
+    clients.sort((a: any, b: any) => {
+      const aPO = a.pos?.[0] ? new Date(a.pos[0].updatedAt).getTime() : 0;
+      const aETA = a.etaInvoices?.[0] ? new Date(a.etaInvoices[0].dateTimeIssued).getTime() : 0;
+
+      const bPO = b.pos?.[0] ? new Date(b.pos[0].updatedAt).getTime() : 0;
+      const bETA = b.etaInvoices?.[0] ? new Date(b.etaInvoices[0].dateTimeIssued).getTime() : 0;
+
+      const aMax = Math.max(aPO, aETA) || new Date(a.createdAt).getTime();
+      const bMax = Math.max(bPO, bETA) || new Date(b.createdAt).getTime();
+
+      return bMax - aMax;
+    });
+
   } catch (error) {
     console.error("[HomePage] Database error:", error);
   }
@@ -87,7 +111,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const ClientCard = ({ client, isFavorite }: { client: any, isFavorite: boolean }) => {
     const poCount = client._count?.pos || 0;
-    const updatedDate = client.updatedAt ? new Date(client.updatedAt).toLocaleDateString() : 'N/A';
+
+    // Find the latest activity date for display
+    const poDate = client.pos?.[0] ? new Date(client.pos[0].updatedAt).getTime() : 0;
+    const etaDate = client.etaInvoices?.[0] ? new Date(client.etaInvoices[0].dateTimeIssued).getTime() : 0;
+    const maxDate = Math.max(poDate, etaDate);
+
+    const displayDate = maxDate > 0
+      ? new Date(maxDate).toLocaleDateString()
+      : new Date(client.createdAt).toLocaleDateString();
 
     return (
       <div
@@ -113,7 +145,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
                 </span>
                 <span className="w-1 h-1 bg-gray-200 rounded-full" />
                 <span className="text-[8px] font-medium text-gray-300 uppercase italic">
-                  {updatedDate}
+                  {displayDate}
                 </span>
               </div>
             </Link>
