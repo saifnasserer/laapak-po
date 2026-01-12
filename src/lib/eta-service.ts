@@ -223,6 +223,7 @@ export async function fetchAllFullInvoices(
                                 netAmount: docData.netAmount || fullDoc.netAmount || 0,
                                 totalTax: totalTax,
                                 totalAmount: docData.totalAmount || fullDoc.totalAmount || 0,
+                                dateTimeIssued: new Date(fullDoc.dateTimeIssued),
                                 updatedAt: new Date(),
                             },
                             create: {

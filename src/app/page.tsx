@@ -66,18 +66,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       } as any,
     }) as any;
 
-    // Smart Sorting by latest activity (last PO or last Invoice)
+    // Smart Sorting: Prioritize Document Activity (PO/ETA) over Record Creation
     clients.sort((a: any, b: any) => {
       const aPO = a.pos?.[0] ? new Date(a.pos[0].updatedAt).getTime() : 0;
       const aETA = a.etaInvoices?.[0] ? new Date(a.etaInvoices[0].dateTimeIssued).getTime() : 0;
-
       const bPO = b.pos?.[0] ? new Date(b.pos[0].updatedAt).getTime() : 0;
       const bETA = b.etaInvoices?.[0] ? new Date(b.etaInvoices[0].dateTimeIssued).getTime() : 0;
 
-      const aMax = Math.max(aPO, aETA) || new Date(a.createdAt).getTime();
-      const bMax = Math.max(bPO, bETA) || new Date(b.createdAt).getTime();
+      const aDocMax = Math.max(aPO, aETA);
+      const bDocMax = Math.max(bPO, bETA);
 
-      return bMax - aMax;
+      // If both have activity, sort by the most recent one
+      if (aDocMax > 0 && bDocMax > 0) return bDocMax - aDocMax;
+
+      // If only one has activity, it goes to the top
+      if (aDocMax > 0) return -1;
+      if (bDocMax > 0) return 1;
+
+      // If neither has activity, sort by creation date (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
   } catch (error) {
