@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     try {
         const body = await request.json();
         const { startDate, endDate, receiverId } = body;
-
+        // const start = startDate ? new Date(startDate) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
         let start: Date;
 
         if (startDate) {

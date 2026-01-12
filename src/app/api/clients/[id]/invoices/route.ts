@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id } = params;
+        const { id } = await params;
+        const p = prisma as any;
         const { searchParams } = new URL(request.url);
         const startDate = searchParams.get('startDate');
         const endDate = searchParams.get('endDate');
 
         // First, get the client to retrieve their tax registration number
-        const client = await prisma.client.findUnique({
+        const client = await p.client.findUnique({
             where: { id },
             select: { taxRegistrationNumber: true, name: true },
         });
@@ -26,7 +25,9 @@ export async function GET(
             );
         }
 
-        if (!client.taxRegistrationNumber) {
+        const taxId = (client as any).taxRegistrationNumber;
+
+        if (!taxId) {
             return NextResponse.json(
                 { error: 'Client does not have a tax registration number' },
                 { status: 400 }
@@ -35,7 +36,7 @@ export async function GET(
 
         // Build the query
         const where: any = {
-            receiverId: client.taxRegistrationNumber,
+            receiverId: taxId,
         };
 
         if (startDate || endDate) {
@@ -45,7 +46,7 @@ export async function GET(
         }
 
         // Fetch invoices
-        const invoices = await prisma.eTAInvoice.findMany({
+        const invoices = await p.eTAInvoice.findMany({
             where,
             orderBy: { dateTimeIssued: 'desc' },
             select: {
@@ -65,7 +66,7 @@ export async function GET(
 
         // Calculate totals
         const totals = invoices.reduce(
-            (acc, inv) => {
+            (acc: any, inv: any) => {
                 acc.totalAmount += inv.totalAmount;
                 acc.totalTax += inv.totalTax;
                 acc.count += 1;
@@ -77,7 +78,7 @@ export async function GET(
         return NextResponse.json({
             client: {
                 name: client.name,
-                taxRegistrationNumber: client.taxRegistrationNumber,
+                taxRegistrationNumber: taxId,
             },
             invoices,
             totals,

@@ -16,6 +16,7 @@ export function FetchButton({ receiverId, initialLastSyncDate, onSuccess }: Fetc
     const [showOptions, setShowOptions] = useState(false);
     // TEMPORARY: Default to Nov 2024 as requested
     const [syncDate, setSyncDate] = useState("2024-11-01");
+    // const [syncDate, setSyncDate] = useState(initialLastSyncDate ? initialLastSyncDate.split('T')[0] : "");
     const router = useRouter();
 
     const handleFetch = async () => {
