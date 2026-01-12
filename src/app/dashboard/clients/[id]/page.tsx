@@ -27,22 +27,18 @@ export default async function ClientDetailPage({ params }: PageProps) {
   const { id } = await params;
 
   // Initial fetch
-  const client = await prisma.client.findUnique({
+  const client = await (prisma.client as any).findUnique({
     where: { id },
     include: {
       pos: {
         include: {
           items: true,
-          _count: {
-            select: { views: true },
-          },
+          _count: { select: { views: true } },
         },
         orderBy: { createdAt: "desc" },
       },
-      etaInvoices: {
-        orderBy: { dateTimeIssued: 'desc' },
-      }
-    },
+      etaInvoices: { orderBy: { dateTimeIssued: 'desc' } }
+    }
   });
 
   if (!client) {
@@ -50,7 +46,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
   }
 
   // Check and update expired POs
-  const expiredPOs = client.pos.filter(po =>
+  const expiredPOs = (client as any).pos.filter((po: any) =>
     po.validUntil &&
     po.status === "DRAFT" &&
     shouldBeExpired(po.validUntil)
@@ -58,7 +54,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
 
   if (expiredPOs.length > 0) {
     await Promise.all(
-      expiredPOs.map(po =>
+      expiredPOs.map((po: any) =>
         prisma.purchaseOffer.update({
           where: { id: po.id },
           data: { status: "EXPIRED" },
@@ -68,31 +64,27 @@ export default async function ClientDetailPage({ params }: PageProps) {
   }
 
   // Refetch updated data
-  const updatedClient = await prisma.client.findUnique({
+  const updatedClient = await (prisma.client as any).findUnique({
     where: { id },
     include: {
       pos: {
         include: {
           items: true,
-          _count: {
-            select: { views: true },
-          },
+          _count: { select: { views: true } },
         },
         orderBy: { createdAt: "desc" },
       },
-      etaInvoices: {
-        orderBy: { dateTimeIssued: 'desc' },
-      }
-    },
+      etaInvoices: { orderBy: { dateTimeIssued: 'desc' } }
+    }
   });
 
   if (!updatedClient) {
     notFound();
   }
 
-  const totalInvoicedValue = updatedClient.etaInvoices.reduce((sum, inv) => sum + inv.totalAmount, 0);
-  const totalOffersValue = updatedClient.pos.reduce((sum, po) => {
-    return sum + po.items.reduce((itemSum, item) => itemSum + item.price * item.quantity, 0);
+  const totalInvoicedValue = updatedClient.etaInvoices.reduce((sum: number, inv: any) => sum + inv.totalAmount, 0);
+  const totalOffersValue = updatedClient.pos.reduce((sum: number, po: any) => {
+    return sum + po.items.reduce((itemSum: number, item: any) => itemSum + item.price * item.quantity, 0);
   }, 0);
 
   return (
@@ -225,7 +217,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
                   <p className="text-gray-500 mb-6 text-sm">Please provide a Tax Registration Number to fetch invoices from ETA.</p>
                 </div>
               ) : (
-                <InvoiceTable invoices={updatedClient.etaInvoices} />
+                <InvoiceTable invoices={(updatedClient as any).etaInvoices} />
               )}
             </div>
 
@@ -253,8 +245,8 @@ export default async function ClientDetailPage({ params }: PageProps) {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {updatedClient.pos.map((po) => {
-                    const total = po.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+                  {updatedClient.pos.map((po: any) => {
+                    const total = po.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
                     return (
                       <div
                         key={po.id}

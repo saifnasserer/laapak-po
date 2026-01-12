@@ -5,11 +5,12 @@ interface Invoice {
     uuid: string;
     internalId: string;
     documentType: string;
-    dateTimeIssued: string;
+    dateTimeIssued: string | Date;
     totalAmount: number;
     totalTax: number;
     status: string;
     issuerName: string;
+    [key: string]: any;
 }
 
 interface InvoiceTableProps {
