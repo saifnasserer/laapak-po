@@ -1,5 +1,6 @@
 import { formatCurrency } from "@/lib/utils";
-import { FileText, CheckCircle2, AlertCircle, Clock, ArrowDownLeft, ArrowUpRight } from "lucide-react";
+import { FileText, CheckCircle2, AlertCircle, Clock, ArrowDownLeft, ArrowUpRight, ExternalLink } from "lucide-react";
+import Link from "next/link";
 
 interface Invoice {
     uuid: string;
@@ -15,9 +16,10 @@ interface Invoice {
 
 interface InvoiceTableProps {
     invoices: Invoice[];
+    clientId: string;
 }
 
-export function InvoiceTable({ invoices }: InvoiceTableProps) {
+export function InvoiceTable({ invoices, clientId }: InvoiceTableProps) {
     if (invoices.length === 0) {
         return (
             <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
@@ -71,39 +73,45 @@ export function InvoiceTable({ invoices }: InvoiceTableProps) {
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
-                    <thead className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold">
+                    <thead className="bg-gray-50 border-b border-gray-200 text-xs uppercase text-gray-500 font-semibold text-balance">
                         <tr>
-                            <th className="px-6 py-3">Date</th>
+                            <th className="px-6 py-3">ID</th>
                             <th className="px-6 py-3">Type</th>
-                            <th className="px-6 py-3">Internal ID</th>
-                            <th className="px-6 py-3 text-right">Tax</th>
+                            <th className="px-6 py-3">Date</th>
                             <th className="px-6 py-3 text-right">Total Amount</th>
                             <th className="px-6 py-3">Status</th>
+                            <th className="px-4 py-3 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
                         {invoices.map((invoice) => (
                             <tr key={invoice.uuid} className="hover:bg-gray-50 transition-colors">
-                                <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                                    {new Date(invoice.dateTimeIssued).toLocaleDateString()}
+                                <td className="px-6 py-4 whitespace-nowrap font-black text-gray-900 font-mono">
+                                    {invoice.internalId}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     {getDocTypeBadge(invoice.documentType)}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                                    {invoice.internalId}
+                                <td className="px-6 py-4 whitespace-nowrap text-gray-600 font-medium">
+                                    {new Date(invoice.dateTimeIssued).toLocaleDateString()}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right text-gray-500">
-                                    {formatCurrency(invoice.totalTax, "EGP")}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-right font-semibold text-gray-900">
+                                <td className="px-6 py-4 whitespace-nowrap text-right font-black text-blue-600">
                                     {formatCurrency(invoice.totalAmount, "EGP")}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="flex items-center gap-2 text-xs">
+                                    <div className="flex items-center gap-2 text-[10px] font-black uppercase">
                                         {getStatusIcon(invoice.status)}
-                                        <span className="capitalize">{invoice.status}</span>
+                                        <span>{invoice.status}</span>
                                     </div>
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-right">
+                                    <Link
+                                        href={`/dashboard/clients/${clientId}/invoices/${invoice.uuid}`}
+                                        className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-gray-700 rounded-lg hover:bg-gray-50 transition-all text-[10px] font-black uppercase tracking-wider shadow-sm"
+                                    >
+                                        <ExternalLink size={12} />
+                                        Full Data
+                                    </Link>
                                 </td>
                             </tr>
                         ))}

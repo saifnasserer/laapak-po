@@ -19,15 +19,20 @@ export function generatePublicId(): string {
 }
 
 export function formatCurrency(amount: number, currency: string = "USD"): string {
-    const formatter = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: currency,
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-    });
-    const formatted = formatter.format(amount);
-    // Remove .00 at the end if present
-    return formatted.replace(/\.00$/, "");
+    try {
+        const validCurrency = currency && currency.length === 3 ? currency.toUpperCase() : "USD";
+        const formatter = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: validCurrency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
+        });
+        const formatted = formatter.format(amount || 0);
+        return formatted.replace(/\.00$/, "");
+    } catch (e) {
+        console.error("formatCurrency error:", e);
+        return `${amount?.toLocaleString() || '0'}`;
+    }
 }
 
 /**

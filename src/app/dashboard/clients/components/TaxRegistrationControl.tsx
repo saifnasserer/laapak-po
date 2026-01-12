@@ -52,7 +52,6 @@ export function TaxRegistrationControl({ clientId, initialValue }: TaxRegistrati
             <div className="flex items-center gap-3 bg-blue-50 px-4 py-2 rounded-lg border border-blue-100 group">
                 <ShieldCheck className="text-blue-600 shrink-0" size={18} />
                 <div className="flex-1 min-w-0">
-                    <p className="text-[10px] uppercase font-bold text-blue-400 tracking-wider leading-none mb-1">Linked Tax ID</p>
                     <p className="text-sm font-mono font-bold text-blue-900 truncate">{value}</p>
                 </div>
                 <button
