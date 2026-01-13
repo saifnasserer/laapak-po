@@ -40,7 +40,15 @@
         "totalInvoiced": "Total Invoiced",
         "documents": "Documents",
         "invoicesNotLinked": "Invoices Not Linked",
-        "provideTaxId": "Please provide a Tax Registration Number to fetch invoices from ETA."
+        "provideTaxId": "Please provide a Tax Registration Number to fetch invoices from ETA.",
+        "deviceReports": "Device Reports",
+        "loadingReports": "Loading reports...",
+        "phoneRequired": "Phone Number Required",
+        "addPhoneToFetch": "Please add a phone number to fetch their device reports.",
+        "noReportsFound": "No Reports Found",
+        "noReportsDescription": "No device reports found in Laapak Report System.",
+        "reportId": "Report ID",
+        "inspectionDate": "Inspection Date"
     },
     "ClientForm": {
         "newClient": "New Client",
@@ -57,7 +65,10 @@
         "updateClientButton": "Update Client",
         "errorCreating": "Failed to create client",
         "errorUpdating": "Failed to update client",
-        "errorOccurred": "An error occurred"
+        "errorOccurred": "An error occurred",
+        "phoneNumber": "Phone Number",
+        "enterPhoneNumber": "Enter phone number",
+        "phoneHelpText": "Used to fetch device reports from Laapak Report System"
     },
     "PriceOffer": {
         "noPOs": "No Price Offers",

@@ -40,7 +40,15 @@
         "totalInvoiced": "إجمالي الفواتير",
         "documents": "المستندات",
         "invoicesNotLinked": "الفواتير غير مربوطة",
-        "provideTaxId": "يرجى توفير رقم التسجيل الضريبي لجلب الفواتير من المصلحة."
+        "provideTaxId": "يرجى توفير رقم التسجيل الضريبي لجلب الفواتير من المصلحة.",
+        "deviceReports": "تقارير الأجهزة",
+        "loadingReports": "جاري تحميل التقارير...",
+        "phoneRequired": "رقم الهاتف مطلوب",
+        "addPhoneToFetch": "يرجى إضافة رقم هاتف لجلب تقارير الأجهزة.",
+        "noReportsFound": "لم يتم العثور على تقارير",
+        "noReportsDescription": "لا توجد تقارير أجهزة مسجلة في نظام لابق.",
+        "reportId": "رقم التقرير",
+        "inspectionDate": "تاريخ الفحص"
     },
     "ClientForm": {
         "newClient": "عميل جديد",
@@ -57,7 +65,10 @@
         "updateClientButton": "تحديث العميل",
         "errorCreating": "فشل في إنشاء العميل",
         "errorUpdating": "فشل في تحديث العميل",
-        "errorOccurred": "حدث خطأ ما"
+        "errorOccurred": "حدث خطأ ما",
+        "phoneNumber": "رقم الهاتف",
+        "enterPhoneNumber": "أدخل رقم الهاتف",
+        "phoneHelpText": "يستخدم لجلب تقارير الأجهزة من نظام تقارير لابق"
     },
     "PriceOffer": {
         "noPOs": "لا توجد عروض أسعار",
@@ -67,7 +78,9 @@
         "views": "مشاهدات",
         "expired": "منتهي",
         "draft": "مسودة",
-        "sent": "مُرسل"
+        "sent": "ضن",
+        "edited": "تعديل",
+        "viewed": "معاينة"
     },
     "Invoice": {
         "noInvoices": "لا توجد فواتير",

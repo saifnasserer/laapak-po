@@ -1,9 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { FileText, Receipt } from "lucide-react";
+import { useState, useEffect } from "react";
+import { FileText, Receipt, Smartphone, RefreshCw, AlertCircle } from "lucide-react";
 import { InvoiceTable } from "./InvoiceTable";
 import { PriceOfferGrid } from "./PriceOfferGrid";
+
+interface DeviceReport {
+    id: string;
+    device_model: string;
+    serial_number: string;
+    inspection_date: string;
+    status: string;
+    hardware_status?: string;
+    amount?: number;
+}
 import { TaxRegistrationControl } from "./TaxRegistrationControl";
 import { formatCurrency } from "@/lib/utils";
 import { FetchButton } from "./FetchButton";
@@ -24,7 +34,41 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
     const params = useParams();
     const locale = params.locale as string;
     const isRTL = locale === 'ar';
-    const [activeTab, setActiveTab] = useState<"invoices" | "pos">("pos");
+    const [activeTab, setActiveTab] = useState<"invoices" | "pos" | "reports">("pos");
+    const [reports, setReports] = useState<DeviceReport[]>([]);
+    const [loadingReports, setLoadingReports] = useState(false);
+    const [reportError, setReportError] = useState<string | null>(null);
+    const [reportsFetched, setReportsFetched] = useState(false);
+
+    useEffect(() => {
+        if (activeTab === "reports" && !reportsFetched) {
+            fetchReports();
+        }
+    }, [activeTab]);
+
+    const fetchReports = async () => {
+        setLoadingReports(true);
+        setReportError(null);
+        try {
+            const res = await fetch(`/api/clients/${clientId}/reports`);
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (res.status === 400 && data.error === "Client does not have a phone number linked") {
+                    setReportError("no_phone");
+                } else {
+                    throw new Error(data.error || "Failed to fetch reports");
+                }
+            } else {
+                setReports(data);
+            }
+        } catch (err) {
+            setReportError(err instanceof Error ? err.message : "Error loading reports");
+        } finally {
+            setLoadingReports(false);
+            setReportsFetched(true);
+        }
+    };
 
     const totalInvoicedValue = invoices.reduce((sum, inv) => sum + (inv.totalAmount || 0), 0);
     const totalOffersValue = pos.reduce((sum, po) => {
@@ -72,6 +116,24 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                             <div className="absolute bottom-0 left-0 right-0 h-1 bg-blue-500 rounded-t-full" />
                         )}
                     </button>
+                    <button
+                        onClick={() => setActiveTab("reports")}
+                        className={`flex items-center gap-2 py-4 px-2 text-sm font-bold relative ${activeTab === "reports"
+                            ? "text-purple-600"
+                            : "text-gray-500 hover:text-gray-700"
+                            }`}
+                    >
+                        <Smartphone size={18} />
+                        {t('deviceReports')}
+                        {reports.length > 0 && (
+                            <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full text-[10px]">
+                                {reports.length}
+                            </span>
+                        )}
+                        {activeTab === "reports" && (
+                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-purple-500 rounded-t-full" />
+                        )}
+                    </button>
                 </div>
             </div>
 
@@ -80,6 +142,53 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                 {activeTab === "pos" ? (
                     <div className="space-y-6">
                         <PriceOfferGrid pos={pos} clientId={clientId} />
+                    </div>
+                ) : activeTab === "reports" ? (
+                    <div className="space-y-6">
+                        {loadingReports ? (
+                            <div className="text-center py-12">
+                                <RefreshCw className="animate-spin mx-auto text-gray-400 mb-2" size={24} />
+                                <p className="text-gray-500">{t('loadingReports')}</p>
+                            </div>
+                        ) : reportError === "no_phone" ? (
+                            <div className="bg-white rounded-xl border border-dashed border-purple-200 p-12 text-center shadow-sm">
+                                <Smartphone size={48} className="mx-auto text-purple-100 mb-4" />
+                                <h3 className="text-lg font-medium text-gray-900 mb-1">{t('phoneRequired')}</h3>
+                                <p className="text-gray-500 mb-6 text-sm">{t('addPhoneToFetch')}</p>
+                            </div>
+                        ) : reportError ? (
+                            <div className="bg-red-50 text-red-600 p-4 rounded-lg flex items-center gap-2">
+                                <AlertCircle size={20} />
+                                {reportError}
+                            </div>
+                        ) : reports.length === 0 ? (
+                            <div className="bg-white rounded-xl border border-dashed border-gray-200 p-12 text-center shadow-sm">
+                                <Smartphone size={48} className="mx-auto text-gray-200 mb-4" />
+                                <h3 className="text-lg font-medium text-gray-900 mb-1">{t('noReportsFound')}</h3>
+                                <p className="text-gray-500 text-sm">{t('noReportsDescription')}</p>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {reports.map((report) => (
+                                    <div key={report.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                                        <div className="flex justify-between items-start mb-3">
+                                            <div>
+                                                <h3 className="font-bold text-gray-900">{report.device_model}</h3>
+                                                <p className="text-xs text-gray-500 font-mono mt-1">{report.serial_number}</p>
+                                            </div>
+                                            <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${report.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                {report.status}
+                                            </span>
+                                        </div>
+                                        <div className="text-xs text-gray-500 space-y-1">
+                                            <p>{t('inspectionDate')}: {new Date(report.inspection_date).toLocaleDateString()}</p>
+                                            <p>{t('reportId')}: {report.id}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ) : (
                     <div className="space-y-8" dir={isRTL ? 'rtl' : 'ltr'}>
@@ -164,6 +273,6 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 }

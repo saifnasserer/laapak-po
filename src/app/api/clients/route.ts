@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, contactInfo, taxRegistrationNumber } = body;
+    const { name, contactInfo, taxRegistrationNumber, phone } = body;
 
     if (!name || typeof name !== "string" || name.trim().length === 0) {
       return NextResponse.json(
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
         name: name.trim(),
         contactInfo: contactInfo?.trim() || null,
         taxRegistrationNumber: taxRegistrationNumber?.trim() || null,
+        phone: phone?.trim() || null,
       },
     });
 

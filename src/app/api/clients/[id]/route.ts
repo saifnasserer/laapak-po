@@ -41,7 +41,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, contactInfo, taxRegistrationNumber } = body;
+    const { name, contactInfo, taxRegistrationNumber, phone } = body;
 
     // Build update object based on provided fields
     const data: any = {};
@@ -61,6 +61,10 @@ export async function PUT(
 
     if (taxRegistrationNumber !== undefined) {
       data.taxRegistrationNumber = taxRegistrationNumber?.trim() || null;
+    }
+
+    if (phone !== undefined) {
+      data.phone = phone?.trim() || null;
     }
 
     // If no fields provided, return early

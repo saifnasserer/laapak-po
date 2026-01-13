@@ -10,6 +10,7 @@ interface ClientFormProps {
     id: string;
     name: string;
     contactInfo: string | null;
+    phone: string | null;
   };
 }
 
@@ -26,6 +27,7 @@ export function ClientForm({ clientId, initialData }: ClientFormProps) {
     const formData = new FormData(e.currentTarget);
     const name = formData.get("name") as string;
     const contactInfo = formData.get("contactInfo") as string;
+    const phone = formData.get("phone") as string;
 
     try {
       const response = await fetch(`/api/clients/${clientId}`, {
@@ -36,6 +38,7 @@ export function ClientForm({ clientId, initialData }: ClientFormProps) {
         body: JSON.stringify({
           name,
           contactInfo: contactInfo || null,
+          phone: phone || null,
         }),
       });
 
@@ -86,8 +89,26 @@ export function ClientForm({ clientId, initialData }: ClientFormProps) {
             rows={4}
             defaultValue={initialData.contactInfo || ""}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors resize-none"
-            placeholder="Email, phone, address, or other contact details"
+            placeholder="Email, address, or other contact details"
           />
+        </div>
+
+        <div>
+          <label
+            htmlFor="phone"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Phone Number
+          </label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            defaultValue={initialData.phone || ""}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
+            placeholder="Enter phone number"
+          />
+          <p className="text-xs text-gray-500 mt-1">Used to fetch device reports from Laapak Report System</p>
         </div>
 
         {error && (
