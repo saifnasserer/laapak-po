@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Link } from "@/i18n/routing";
 import { FileText, Receipt, Smartphone, RefreshCw, AlertCircle } from "lucide-react";
 import { InvoiceTable } from "./InvoiceTable";
 import { PriceOfferGrid } from "./PriceOfferGrid";
@@ -170,10 +171,14 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                         ) : (
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 {reports.map((report) => (
-                                    <div key={report.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
+                                    <Link
+                                        href={`/dashboard/clients/${clientId}/reports/${report.id}`}
+                                        key={report.id}
+                                        className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all hover:border-purple-200 group block"
+                                    >
                                         <div className="flex justify-between items-start mb-3">
                                             <div>
-                                                <h3 className="font-bold text-gray-900">{report.device_model}</h3>
+                                                <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{report.device_model}</h3>
                                                 <p className="text-xs text-gray-500 font-mono mt-1">{report.serial_number}</p>
                                             </div>
                                             <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${report.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
@@ -185,7 +190,7 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                                             <p>{t('inspectionDate')}: {new Date(report.inspection_date).toLocaleDateString()}</p>
                                             <p>{t('reportId')}: {report.id}</p>
                                         </div>
-                                    </div>
+                                    </Link>
                                 ))}
                             </div>
                         )}

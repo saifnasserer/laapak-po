@@ -141,5 +141,17 @@
         "digitalSignatureVerified": "تم التحقق من التوقيع الرقمي",
         "realTimeSyncActive": "المزامنة الفورية نشطة",
         "secureRecord": "سجل آمن"
+    },
+    "ReportDetail": {
+        "basicInfo": "المعلومات الأساسية",
+        "reportId": "رقم التقرير",
+        "inspectionDate": "تاريخ الفحص",
+        "reportTitle": "العنوان",
+        "description": "الوصف",
+        "hardwareCheck": "فحص الهاردوير",
+        "noHardwareData": "لا توجد بيانات لفحص الهاردوير",
+        "technicianNotes": "ملاحظات الفني",
+        "deviceImages": "صور الجهاز",
+        "testScreenshots": "لقطات شاشة للاختبارات"
     }
 }

@@ -1,12 +1,17 @@
 
 export interface DeviceReport {
     id: string;
+    client_id?: string | number;
+    title?: string;
+    description?: string;
     device_model: string;
     serial_number: string;
     inspection_date: string;
     status: string;
     createdAt: string;
-    hardware_status?: string;
+    hardware_status?: string; // JSON string
+    external_images?: string; // JSON string
+    notes?: string;
     amount?: number;
     billing_enabled?: boolean;
 }
@@ -95,12 +100,38 @@ export class ReportService {
         }
     }
 
+    async getReport(reportId: string): Promise<DeviceReport | null> {
+        try {
+            // Use path traversal to access the internal API which returns full details
+            // /api/external/../reports/:id -> /api/reports/:id
+            const data = await this.makeRequest<{ success: boolean; report: DeviceReport }>(`/../reports/${reportId}`);
+
+            if (data.success && data.report) {
+                return data.report;
+            }
+            return null;
+        } catch (error) {
+            console.error('Failed to fetch report:', error);
+            return null;
+        }
+    }
+
     async getReportsByPhone(phone: string): Promise<DeviceReport[]> {
         const lookup = await this.lookupClientByPhone(phone);
         if (lookup.found && lookup.client) {
             return this.getClientReports(lookup.client.id);
         }
         return [];
+    }
+
+    async getReportByClientPhone(phone: string, reportId: string): Promise<DeviceReport | null> {
+        try {
+            const reports = await this.getReportsByPhone(phone);
+            return reports.find(r => r.id === reportId) || null;
+        } catch (error) {
+            console.error('Failed to find report by phone:', error);
+            return null;
+        }
     }
 }
 

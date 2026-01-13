@@ -139,5 +139,17 @@
         "digitalSignatureVerified": "Digital Signature Verified",
         "realTimeSyncActive": "Real-time Sync Active",
         "secureRecord": "Secure Record"
+    },
+    "ReportDetail": {
+        "basicInfo": "Basic Information",
+        "reportId": "Report ID",
+        "inspectionDate": "Inspection Date",
+        "reportTitle": "Title",
+        "description": "Description",
+        "hardwareCheck": "Hardware Diagnostics",
+        "noHardwareData": "No hardware diagnostic data available",
+        "technicianNotes": "Technician Notes",
+        "deviceImages": "Device Photos",
+        "testScreenshots": "Test Screenshots"
     }
 }
