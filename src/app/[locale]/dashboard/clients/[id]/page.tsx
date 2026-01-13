@@ -35,7 +35,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
       pos: {
         include: {
           items: true,
-          _count: { select: { views: true } },
+          views: true,
         },
         orderBy: { createdAt: "desc" },
       },

@@ -53,21 +53,21 @@ export function InvoiceTable({ invoices, clientId }: InvoiceTableProps) {
                 return (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                         <ArrowUpRight size={12} />
-                        Invoice
+                        {t('invoice')}
                     </span>
                 );
             case "C":
                 return (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
                         <ArrowDownLeft size={12} />
-                        Credit Note
+                        {t('creditNote')}
                     </span>
                 );
             case "D":
                 return (
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-800">
                         <ArrowUpRight size={12} />
-                        Debit Note
+                        {t('debitNote')}
                     </span>
                 );
             default:

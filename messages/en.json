@@ -82,7 +82,10 @@
         "date": "Date",
         "totalAmount": "Total Amount",
         "actions": "Actions",
-        "fullData": "Full Data"
+        "fullData": "Full Data",
+        "invoice": "Invoice",
+        "creditNote": "Credit Note",
+        "debitNote": "Debit Note"
     },
     "Actions": {
         "print": "Print",

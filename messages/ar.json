@@ -82,7 +82,10 @@
         "date": "التاريخ",
         "totalAmount": "المبلغ الإجمالي",
         "actions": "الإجراءات",
-        "fullData": "البيانات الكاملة"
+        "fullData": "البيانات الكاملة",
+        "invoice": "فاتورة",
+        "creditNote": "إشعار دائن",
+        "debitNote": "إشعار مدين"
     },
     "Actions": {
         "print": "طباعة",
