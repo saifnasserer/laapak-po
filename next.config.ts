@@ -1,15 +1,18 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
+
+const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   // Production optimizations
   reactStrictMode: true,
   poweredByHeader: false,
-  
+
   // Allow cross-origin requests from po.laapak.com in development
   allowedDevOrigins: [
     'po.laapak.com',
   ],
-  
+
   // Server configuration
   ...(process.env.PORT && {
     experimental: {
@@ -18,7 +21,7 @@ const nextConfig: NextConfig = {
       },
     },
   }),
-  
+
   // Security headers
   async headers() {
     return [
@@ -92,4 +95,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);
