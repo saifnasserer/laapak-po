@@ -70,13 +70,9 @@ export async function GET(
     }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    if (process.env.NODE_ENV === "development") {
-      console.error("Error generating PDF:", error);
-    } else {
-      console.error("Error generating PDF:", errorMessage);
-    }
+    console.error("Error generating PDF:", error);
     return NextResponse.json(
-      { error: "Failed to generate PDF" },
+      { error: "Failed to generate PDF", details: errorMessage },
       { status: 500 }
     );
   }
