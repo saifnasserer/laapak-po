@@ -8,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { publicId } = await params;
-    
+
     const po = await prisma.purchaseOffer.findUnique({
       where: { publicId },
       include: {
@@ -37,9 +37,9 @@ export async function GET(
 
     try {
       const page = await browser.newPage();
-      
+
       // Navigate to the public PO page
-      await page.goto(`${baseUrl}/p/${publicId}`, {
+      await page.goto(`${baseUrl}/ar/p/${publicId}`, {
         waitUntil: "networkidle0",
       });
 
