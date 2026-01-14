@@ -39,7 +39,7 @@ export async function GET(
       const page = await browser.newPage();
 
       // Navigate to the public PO page
-      await page.goto(`${baseUrl}/ar/p/${publicId}`, {
+      await page.goto(`${baseUrl}/en/p/${publicId}`, {
         waitUntil: "networkidle0",
       });
 
