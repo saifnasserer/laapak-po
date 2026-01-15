@@ -86,7 +86,7 @@ export const AnalysisService = {
                     },
                     {
                         pos: {
-                            none: { createdAt: { gte: thresholdDate } }
+                            none: { updatedAt: { gte: thresholdDate } } // Changed to updatedAt to match dashboard logic
                         }
                     },
                     {
@@ -108,6 +108,50 @@ export const AnalysisService = {
             },
             orderBy: { updatedAt: 'asc' }, // Oldest first
             take: 20
+        });
+    },
+
+    /**
+     * Get active clients (Recently interacted with)
+     */
+    async getActiveClients(limit: number = 10) {
+        // 30 days window
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.setDate(now.getDate() - 30));
+
+        return await prisma.client.findMany({
+            where: {
+                OR: [
+                    { pos: { some: { updatedAt: { gte: thirtyDaysAgo } } } },
+                    { etaInvoices: { some: { dateTimeIssued: { gte: thirtyDaysAgo } } } },
+                    // Also include manually updated/contacted
+                    { updatedAt: { gte: thirtyDaysAgo } }
+                ],
+                AND: [
+                    { name: { not: { contains: 'Laapak' } } }, // Exclude Laapak
+                    { name: { not: { contains: 'لابك' } } }
+                ]
+            },
+            select: {
+                id: true,
+                name: true,
+                phone: true,
+                updatedAt: true,
+                _count: { select: { pos: true, etaInvoices: true } },
+                pos: {
+                    take: 1,
+                    orderBy: { updatedAt: 'desc' },
+                    select: { updatedAt: true }
+                },
+                etaInvoices: {
+                    take: 1,
+                    orderBy: { dateTimeIssued: 'desc' },
+                    select: { dateTimeIssued: true }
+                }
+            },
+            // Sort by most recent activity
+            orderBy: { updatedAt: 'desc' },
+            take: limit
         });
     },
 

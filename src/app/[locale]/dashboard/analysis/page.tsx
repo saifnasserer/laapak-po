@@ -3,19 +3,28 @@ import { formatCurrency } from "@/lib/utils";
 import { Users, TrendingUp, AlertCircle, DollarSign, ExternalLink, Phone } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { FollowUpRow } from "./components/FollowUpRow";
+import { ClientListTabs } from "./components/ClientListTabs";
+
+import { BackButton } from "../clients/components/BackButton";
+import { getLocale } from "next-intl/server";
 
 export const revalidate = 0; // Dynamic
 
 export default async function AnalysisPage() {
     const t = await getTranslations("Dashboard");
+    const locale = await getLocale();
+    const isRTL = locale === "ar";
     const metrics = await AnalysisService.getMetrics();
     const inactiveClients = await AnalysisService.getInactiveClients(30);
+    const activeClients = await AnalysisService.getActiveClients(20);
     const topClients = await AnalysisService.getTopClients(5);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-            <h1 className="text-2xl font-bold text-gray-900">Analysis & Follow-up</h1>
+            <div className="flex items-center gap-4">
+                <BackButton isRTL={isRTL} fallbackUrl="/" />
+                <h1 className="text-2xl font-bold text-gray-900">Analysis & Follow-up</h1>
+            </div>
 
             {/* KPI Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -52,39 +61,9 @@ export default async function AnalysisPage() {
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
 
-                {/* Left Column: Follow-up Actions */}
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                            <Phone className="text-gray-400" size={24} />
-                            Follow-up Required
-                        </h2>
-                        {inactiveClients.length > 0 && (
-                            <span className="bg-red-100 text-red-700 text-xs font-bold px-3 py-1 rounded-full animate-pulse">
-                                {inactiveClients.length} Action Items
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1">
-                        <div className="p-4 bg-gray-50 border-b border-gray-100">
-                            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">Inactive for 30+ Days</p>
-                        </div>
-                        <div className="divide-y divide-gray-100 max-h-[600px] overflow-y-auto custom-scrollbar">
-                            {inactiveClients.length === 0 ? (
-                                <div className="p-12 text-center text-gray-400 flex flex-col items-center gap-4">
-                                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
-                                        <TrendingUp className="text-green-500" size={32} />
-                                    </div>
-                                    <p>All clients are engaged! Great work.</p>
-                                </div>
-                            ) : (
-                                inactiveClients.map(client => (
-                                    <FollowUpRow key={client.id} client={client as any} />
-                                ))
-                            )}
-                        </div>
-                    </div>
+                {/* Left Column: Follow-up & Active */}
+                <div >
+                    <ClientListTabs inactiveClients={inactiveClients} activeClients={activeClients} />
                 </div>
 
                 {/* Right Column: Leaderboard */}
