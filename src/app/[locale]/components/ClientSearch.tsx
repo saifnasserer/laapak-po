@@ -14,8 +14,12 @@ export function ClientSearch() {
     const [query, setQuery] = useState(searchParams.get('search') || '');
 
     // Debounce search update
+    // Debounce search update
     useEffect(() => {
         const timer = setTimeout(() => {
+            const currentSearch = searchParams.get('search') || '';
+            if (currentSearch === query) return;
+
             const params = new URLSearchParams(searchParams.toString());
             if (query) {
                 params.set('search', query);

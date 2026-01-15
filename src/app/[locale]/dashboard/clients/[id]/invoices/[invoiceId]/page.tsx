@@ -1,17 +1,18 @@
 import { notFound } from "next/navigation";
-import { Link } from "@/i18n/routing";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency } from "@/lib/utils";
-import { ArrowLeft, ShieldCheck, Building2, User, Info } from "lucide-react";
+import { ShieldCheck, Building2, User, Info } from "lucide-react";
 import { PrintButton } from "../../../components/PrintButton";
+import { BackButton } from "../../../components/BackButton";
 import { getTranslations } from 'next-intl/server';
 
 export default async function InvoiceDetailPage({
     params,
 }: {
-    params: Promise<{ id: string; invoiceId: string }>;
+    params: Promise<{ id: string; invoiceId: string; locale: string }>;
 }) {
-    const { id, invoiceId } = await params;
+    const { id, invoiceId, locale } = await params;
+    const isRTL = locale === 'ar';
 
     const invoice = await (prisma as any).eTAInvoice.findUnique({
         where: { uuid: invoiceId },
@@ -25,6 +26,7 @@ export default async function InvoiceDetailPage({
     }
 
     const t = await getTranslations('InvoiceDetail');
+
 
     const rawFullDoc = invoice.fullDocument as any;
 
@@ -67,13 +69,10 @@ export default async function InvoiceDetailPage({
             {/* Sticky Header Actions */}
             <div className="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm print:hidden">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-                    <Link
-                        href={`/dashboard/clients/${id}`}
-                        className="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-gray-900 transition-colors"
-                    >
-                        <ArrowLeft size={18} />
-                        {t('backToClient')}
-                    </Link>
+                    <BackButton
+                        isRTL={isRTL}
+                        fallbackUrl={`/dashboard/clients/${id}`}
+                    />
                     <div className="flex items-center gap-3">
                         <PrintButton />
                     </div>

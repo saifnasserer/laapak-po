@@ -1,8 +1,10 @@
-import { reportService, DeviceReport } from "@/lib/services/reportService";
+import { reportService } from "@/lib/services/reportService";
+import { DeviceReport } from "@/types/device-report";
 import { Link } from "@/i18n/routing";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Smartphone, Calendar, CheckCircle, Image as ImageIcon, FileText, Activity } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { BackButton } from "../../../components/BackButton";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -64,12 +66,10 @@ export default async function ReportDetailPage({ params }: PageProps) {
             <header className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center gap-4">
-                        <Link
-                            href={`/dashboard/clients/${clientId}`}
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors text-gray-500 hover:text-gray-900 shrink-0"
-                        >
-                            <ArrowLeft size={20} className={isRTL ? "rotate-180" : ""} />
-                        </Link>
+                        <BackButton
+                            isRTL={isRTL}
+                            fallbackUrl={`/dashboard/clients/${clientId}`}
+                        />
                         <div>
                             <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                                 <Smartphone className="text-purple-600" size={24} />

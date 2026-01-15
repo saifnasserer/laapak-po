@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "@/i18n/routing";
 import { FileText, Receipt, Smartphone, RefreshCw, AlertCircle } from "lucide-react";
 import { InvoiceTable } from "./InvoiceTable";
@@ -9,29 +9,59 @@ import { TaxRegistrationControl } from "./TaxRegistrationControl";
 import { formatCurrency } from "@/lib/utils";
 import { FetchButton } from "./FetchButton";
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { DeviceReport } from "@/types/device-report";
+
 
 interface ClientDashboardTabsProps {
     clientId: string;
-    invoices: any[];
     pos: any[];
+    invoices: any[];
+    initialReports: DeviceReport[];
     taxRegistrationNumber: string | null;
     contactInfo: string | null;
     createdAt: Date;
-    initialReports: DeviceReport[];
 }
 
-export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNumber, contactInfo, createdAt, initialReports }: ClientDashboardTabsProps) {
+export function ClientDashboardTabs({ clientId, pos, invoices, initialReports, taxRegistrationNumber, contactInfo, createdAt }: ClientDashboardTabsProps) {
     const t = useTranslations('ClientDetails');
-    const params = useParams();
-    const locale = params.locale as string;
+    const { locale } = useParams();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
     const isRTL = locale === 'ar';
-    const [activeTab, setActiveTab] = useState<"invoices" | "pos" | "reports">("pos");
+
+    // Initialize state from URL params or defaults
+    const [activeTab, setActiveTab] = useState(searchParams.get('tab') || "pos");
     const [reports, setReports] = useState<DeviceReport[]>(initialReports || []);
     const [loadingReports, setLoadingReports] = useState(false);
     const [reportError, setReportError] = useState<string | null>(null);
-    const [reportsFetched, setReportsFetched] = useState(true);
+    const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || "");
+
+    // Update URL helper
+    const updateUrl = useCallback(
+        (key: string, value: string) => {
+            const params = new URLSearchParams(searchParams.toString());
+            if (value) {
+                params.set(key, value);
+            } else {
+                params.delete(key);
+            }
+            router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+        },
+        [searchParams, pathname, router]
+    );
+
+    const handleTabChange = (tab: string) => {
+        setActiveTab(tab);
+        updateUrl('tab', tab);
+    };
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const query = e.target.value;
+        setSearchQuery(query);
+        updateUrl('q', query);
+    };
 
     const fetchReports = async () => {
         setLoadingReports(true);
@@ -53,7 +83,6 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
             setReportError(err instanceof Error ? err.message : "Error loading reports");
         } finally {
             setLoadingReports(false);
-            setReportsFetched(true);
         }
     };
 
@@ -62,13 +91,23 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
         return sum + po.items.reduce((itemSum: number, item: any) => itemSum + item.price * item.quantity, 0);
     }, 0);
 
+    const filteredReports = reports.filter(report => {
+        if (!searchQuery) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+            report.device_model.toLowerCase().includes(query) ||
+            report.serial_number.toLowerCase().includes(query) ||
+            (report.title && report.title.toLowerCase().includes(query))
+        );
+    });
+
     return (
         <div className="space-y-6">
             {/* Tabs Header */}
             <div className="flex items-center justify-between border-b border-gray-200 bg-white px-2 rounded-t-xl">
                 <div className="flex gap-8">
                     <button
-                        onClick={() => setActiveTab("pos")}
+                        onClick={() => handleTabChange("pos")}
                         className={`flex items-center gap-2 py-4 px-2 text-sm font-bold relative ${activeTab === "pos"
                             ? "text-green-600"
                             : "text-gray-500 hover:text-gray-700"
@@ -86,7 +125,7 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                         )}
                     </button>
                     <button
-                        onClick={() => setActiveTab("invoices")}
+                        onClick={() => handleTabChange("invoices")}
                         className={`flex items-center gap-2 py-4 px-2 text-sm font-bold relative ${activeTab === "invoices"
                             ? "text-blue-600"
                             : "text-gray-500 hover:text-gray-700"
@@ -104,7 +143,7 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                         )}
                     </button>
                     <button
-                        onClick={() => setActiveTab("reports")}
+                        onClick={() => handleTabChange("reports")}
                         className={`flex items-center gap-2 py-4 px-2 text-sm font-bold relative ${activeTab === "reports"
                             ? "text-purple-600"
                             : "text-gray-500 hover:text-gray-700"
@@ -155,29 +194,53 @@ export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNu
                                 <p className="text-gray-500 text-sm">{t('noReportsDescription')}</p>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {reports.map((report) => (
-                                    <Link
-                                        href={`/dashboard/clients/${clientId}/reports/${report.id}`}
-                                        key={report.id}
-                                        className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all hover:border-purple-200 group block"
-                                    >
-                                        <div className="flex justify-between items-start mb-3">
-                                            <div>
-                                                <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{report.device_model}</h3>
-                                                <p className="text-xs text-gray-500 font-mono mt-1">{report.serial_number}</p>
-                                            </div>
-                                            <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${report.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
-                                                }`}>
-                                                {report.status}
-                                            </span>
-                                        </div>
-                                        <div className="text-xs text-gray-500 space-y-1">
-                                            <p>{t('inspectionDate')}: {new Date(report.inspection_date).toLocaleDateString()}</p>
-                                            <p>{t('reportId')}: {report.id}</p>
-                                        </div>
-                                    </Link>
-                                ))}
+                            <div className="space-y-4">
+                                {/* Search Bar */}
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        placeholder={t('searchReports')}
+                                        value={searchQuery}
+                                        onChange={handleSearchChange}
+                                        className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                    />
+                                    <div className="absolute left-3 top-2.5 text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <circle cx="11" cy="11" r="8"></circle>
+                                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {filteredReports.length === 0 ? (
+                                    <div className="text-center py-8 text-gray-500">
+                                        {t('noResultsFound')}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {filteredReports.map((report) => (
+                                            <Link
+                                                href={`/dashboard/clients/${clientId}/reports/${report.id}`}
+                                                key={report.id}
+                                                className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-all hover:border-purple-200 group block"
+                                            >
+                                                <div className="flex justify-between items-start mb-3">
+                                                    <div>
+                                                        <h3 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{report.device_model}</h3>
+                                                        <p className="text-xs text-gray-500 font-mono mt-1">{report.serial_number}</p>
+                                                    </div>
+                                                    <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase ${report.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'
+                                                        }`}>
+                                                        {report.status}
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-gray-500 space-y-1">
+                                                    <p>{t('inspectionDate')}: {new Date(report.inspection_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}</p>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>

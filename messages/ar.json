@@ -48,7 +48,9 @@
         "noReportsFound": "لم يتم العثور على تقارير",
         "noReportsDescription": "لا توجد تقارير أجهزة مسجلة في نظام لابق.",
         "reportId": "رقم التقرير",
-        "inspectionDate": "تاريخ الفحص"
+        "inspectionDate": "تاريخ الفحص",
+        "searchReports": "بحث بالسيريال، الموديل أو العنوان...",
+        "noResultsFound": "لا توجد نتائج مطابقة"
     },
     "ClientForm": {
         "newClient": "عميل جديد",

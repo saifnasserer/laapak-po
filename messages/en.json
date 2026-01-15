@@ -48,7 +48,9 @@
         "noReportsFound": "No Reports Found",
         "noReportsDescription": "No device reports found in Laapak Report System.",
         "reportId": "Report ID",
-        "inspectionDate": "Inspection Date"
+        "inspectionDate": "Inspection Date",
+        "searchReports": "Search by SN, Model or Title...",
+        "noResultsFound": "No matching reports found"
     },
     "ClientForm": {
         "newClient": "New Client",
