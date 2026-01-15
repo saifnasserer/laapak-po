@@ -79,8 +79,10 @@ export function ClientListTabs({ inactiveClients, activeClients }: ClientListTab
                             activeClients.map(client => {
                                 const poDate = client.pos?.[0] ? new Date(client.pos[0].updatedAt).getTime() : 0;
                                 const etaDate = client.etaInvoices?.[0] ? new Date(client.etaInvoices[0].dateTimeIssued).getTime() : 0;
-                                const maxDate = Math.max(poDate, etaDate, new Date(client.updatedAt).getTime());
-                                const displayDate = maxDate > 0 ? new Date(maxDate).toLocaleDateString() : "Unknown";
+                                const maxDate = Math.max(poDate, etaDate);
+                                const displayDate = maxDate > 0
+                                    ? new Date(maxDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })
+                                    : new Date(client.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
                                 return (
                                     <div key={client.id} className="p-4 hover:bg-gray-50 transition-colors flex items-center justify-between gap-4">

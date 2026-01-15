@@ -92,8 +92,8 @@ export default async function InvoiceDetailPage({
                                         {t('invoiceNumber')} <span className="font-mono text-gray-600">{invoice.internalId}</span>
                                     </h1>
                                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide border ${invoice.status === "Valid"
-                                            ? "bg-green-50 text-green-700 border-green-100"
-                                            : "bg-red-50 text-red-700 border-red-100"
+                                        ? "bg-green-50 text-green-700 border-green-100"
+                                        : "bg-red-50 text-red-700 border-red-100"
                                         }`}>
                                         {invoice.status}
                                     </span>
@@ -104,7 +104,7 @@ export default async function InvoiceDetailPage({
                                         <span className="font-mono text-gray-600 select-all">{invoice.uuid.substring(0, 8)}...</span>
                                     </span>
                                     <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                                    <span>{new Date(invoice.dateTimeIssued).toLocaleString()}</span>
+                                    <span>{new Date(invoice.dateTimeIssued).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
                                 </div>
                             </div>
 

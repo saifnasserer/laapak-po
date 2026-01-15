@@ -51,7 +51,7 @@ export function FollowUpRow({ client }: FollowUpRowProps) {
                     )}
                 </div>
                 <div className="text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1 items-center">
-                    <span className="text-red-500 font-medium">Last: {new Date(client.updatedAt).toLocaleDateString()}</span>
+                    <span className="text-red-500 font-medium">Last: {new Date(client.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}</span>
                     <span className="w-1 h-1 bg-gray-300 rounded-full" />
                     <span>{client._count.pos} POs</span>
                     <span className="w-1 h-1 bg-gray-300 rounded-full" />

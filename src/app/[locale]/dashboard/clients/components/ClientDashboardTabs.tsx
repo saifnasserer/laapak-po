@@ -268,7 +268,7 @@ export function ClientDashboardTabs({ clientId, pos, invoices, initialReports, t
                                         </div>
                                         <div>
                                             <p className="text-[9px] text-gray-400 font-medium italic">
-                                                {t('registeredOn')} {new Date(createdAt).toLocaleDateString(undefined, { dateStyle: 'long' })}
+                                                {t('registeredOn')} {new Date(createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                                             </p>
                                         </div>
                                     </div>

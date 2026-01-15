@@ -123,19 +123,11 @@ export function PublicPOView({ po }: PublicPOViewProps) {
                     <div className="border-t border-gray-200 pt-6 mt-8 print:mt-6 text-sm text-gray-600">
                         <p>Prepared By: Laapak Sales Team</p>
                         <p className="mt-2" suppressHydrationWarning>
-                            Date: {new Date(po.createdAt).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}
+                            Date: {new Date(po.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                         </p>
                         {po.validUntil && (
                             <p className="mt-2" suppressHydrationWarning>
-                                Valid Until: {new Date(po.validUntil).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                })}
+                                Valid Until: {new Date(po.validUntil).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                             </p>
                         )}
                     </div>

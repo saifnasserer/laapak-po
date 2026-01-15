@@ -129,8 +129,8 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     const maxDate = Math.max(poDate, etaDate);
 
     const displayDate = maxDate > 0
-      ? new Date(maxDate).toLocaleDateString()
-      : new Date(client.createdAt).toLocaleDateString();
+      ? new Date(maxDate).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })
+      : new Date(client.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
     return (
       <div

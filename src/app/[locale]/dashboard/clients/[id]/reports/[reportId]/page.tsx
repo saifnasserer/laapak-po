@@ -80,7 +80,7 @@ export default async function ReportDetailPage({ params }: PageProps) {
                                 <span className="text-gray-300">•</span>
                                 <span className="flex items-center gap-1.5">
                                     <Calendar size={14} className="text-gray-400" />
-                                    {new Date(report.inspection_date).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                                    {new Date(report.inspection_date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                                 </span>
                                 <span className="text-gray-300">•</span>
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${report.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'

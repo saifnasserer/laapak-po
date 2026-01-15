@@ -99,7 +99,7 @@ export function InvoiceTable({ invoices, clientId }: InvoiceTableProps) {
                                     {getDocTypeBadge(invoice.documentType)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-gray-600 font-medium">
-                                    {new Date(invoice.dateTimeIssued).toLocaleDateString()}
+                                    {new Date(invoice.dateTimeIssued).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' })}
                                 </td>
                                 <td className={`px-6 py-4 whitespace-nowrap ${isRTL ? 'text-left' : 'text-right'} font-black text-blue-600`}>
                                     {formatCurrency(invoice.totalAmount, "EGP")}

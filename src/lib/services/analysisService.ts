@@ -82,11 +82,14 @@ export const AnalysisService = {
                         name: { not: { contains: 'Laapak' } } // Exclude Laapak
                     },
                     {
-                        updatedAt: { lt: thresholdDate } // Must not have been updated recently (includes creation and manual updates)
+                        createdAt: { lt: thresholdDate }
+                    },
+                    {
+                        updatedAt: { lt: thresholdDate } // Restored: Needed for "Mark as Contacted" to work
                     },
                     {
                         pos: {
-                            none: { updatedAt: { gte: thresholdDate } } // Changed to updatedAt to match dashboard logic
+                            none: { updatedAt: { gte: thresholdDate } }
                         }
                     },
                     {
@@ -102,6 +105,7 @@ export const AnalysisService = {
                 phone: true,
                 contactInfo: true,
                 updatedAt: true,
+                createdAt: true,
                 _count: {
                     select: { pos: true, etaInvoices: true }
                 }
@@ -124,8 +128,8 @@ export const AnalysisService = {
                 OR: [
                     { pos: { some: { updatedAt: { gte: thirtyDaysAgo } } } },
                     { etaInvoices: { some: { dateTimeIssued: { gte: thirtyDaysAgo } } } },
-                    // Also include manually updated/contacted
-                    { updatedAt: { gte: thirtyDaysAgo } }
+                    { createdAt: { gte: thirtyDaysAgo } },
+                    { updatedAt: { gte: thirtyDaysAgo } } // Restored: Needed for "Mark as Contacted"
                 ],
                 AND: [
                     { name: { not: { contains: 'Laapak' } } }, // Exclude Laapak
@@ -137,6 +141,7 @@ export const AnalysisService = {
                 name: true,
                 phone: true,
                 updatedAt: true,
+                createdAt: true,
                 _count: { select: { pos: true, etaInvoices: true } },
                 pos: {
                     take: 1,
