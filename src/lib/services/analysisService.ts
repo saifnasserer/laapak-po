@@ -82,6 +82,9 @@ export const AnalysisService = {
                         name: { not: { contains: 'Laapak' } } // Exclude Laapak
                     },
                     {
+                        updatedAt: { lt: thresholdDate } // Must not have been updated recently (includes creation and manual updates)
+                    },
+                    {
                         pos: {
                             none: { createdAt: { gte: thresholdDate } }
                         }
@@ -125,6 +128,9 @@ export const AnalysisService = {
             _sum: {
                 totalAmount: true
             },
+            _count: {
+                _all: true
+            },
             orderBy: {
                 _sum: {
                     totalAmount: 'desc'
@@ -160,7 +166,8 @@ export const AnalysisService = {
                 taxId: payer.receiverId,
                 name: client.name,
                 clientId: client.id,
-                totalSpent: payer._sum.totalAmount || 0
+                totalSpent: payer._sum.totalAmount || 0,
+                invoiceCount: payer._count._all || 0
             };
         }).filter(item => item !== null) as any[];
 

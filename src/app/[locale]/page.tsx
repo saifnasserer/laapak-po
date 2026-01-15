@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { Link } from "@/i18n/routing";
-import { Building2, Plus, Edit, Star, Search } from "lucide-react";
+import { Building2, Plus, Edit, Star, Search, PieChart } from "lucide-react";
 import { DeleteClientButton } from "@/app/[locale]/dashboard/clients/[id]/delete-client-button";
 import { unstable_noStore as noStore } from 'next/cache';
 import { headers, cookies } from 'next/headers';
@@ -198,6 +198,13 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
             <div className="flex-1 max-w-2xl w-full flex flex-col sm:flex-row items-center gap-4">
               <ClientSearch />
+              <Link
+                href="/dashboard/analysis"
+                className="w-10 h-10 shrink-0 aspect-square bg-white border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-200 rounded-full flex items-center justify-center transition-all shadow-sm"
+                title="Analysis Dashboard"
+              >
+                <PieChart size={20} />
+              </Link>
               <LanguageSwitcher />
               <Link
                 href="/dashboard/clients/new"

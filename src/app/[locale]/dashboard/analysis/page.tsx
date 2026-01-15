@@ -3,6 +3,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Users, TrendingUp, AlertCircle, DollarSign, ExternalLink, Phone } from "lucide-react";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { FollowUpRow } from "./components/FollowUpRow";
 
 export const revalidate = 0; // Dynamic
 
@@ -27,21 +28,21 @@ export default async function AnalysisPage() {
                 />
                 <KPICard
                     title="Revenue (Month)"
-                    value={formatCurrency(metrics.revenueMonth, "EGP")}
+                    value={metrics.revenueMonth.toLocaleString()}
                     icon={TrendingUp}
                     color="text-green-600"
                     bg="bg-green-50"
                 />
                 <KPICard
                     title="Open Pipeline"
-                    value={formatCurrency(metrics.openPipeline, "EGP")}
+                    value={metrics.openPipeline.toLocaleString()}
                     icon={AlertCircle}
                     color="text-amber-600"
                     bg="bg-amber-50"
                 />
                 <KPICard
                     title="Avg. Deal Size"
-                    value={formatCurrency(metrics.avgDealSize, "EGP")}
+                    value={metrics.avgDealSize.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                     icon={DollarSign}
                     color="text-purple-600"
                     bg="bg-purple-50"
@@ -79,35 +80,7 @@ export default async function AnalysisPage() {
                                 </div>
                             ) : (
                                 inactiveClients.map(client => (
-                                    <div key={client.id} className="p-4 hover:bg-red-50/10 transition-colors group flex items-center justify-between gap-4">
-                                        <div className="min-w-0">
-                                            <div className="flex items-center gap-2 mb-1">
-                                                <h3 className="text-sm font-bold text-gray-900 truncate">{client.name}</h3>
-                                                {client.id && (
-                                                    <Link href={`/dashboard/clients/${client.id}`} className="text-gray-300 hover:text-blue-600 transition-colors" title="View Client">
-                                                        <ExternalLink size={14} />
-                                                    </Link>
-                                                )}
-                                            </div>
-                                            <div className="text-xs text-gray-500 flex flex-wrap gap-x-3 gap-y-1 items-center">
-                                                <span className="text-red-500 font-medium">Last: {new Date(client.updatedAt).toLocaleDateString()}</span>
-                                                <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                                                <span>{client._count.pos} POs</span>
-                                                <span className="w-1 h-1 bg-gray-300 rounded-full" />
-                                                <span>{client._count.etaInvoices} Invoices</span>
-                                            </div>
-                                            {client.phone && (
-                                                <p className="text-xs font-mono text-gray-400 mt-1">{client.phone}</p>
-                                            )}
-                                        </div>
-                                        <Link
-                                            href={`tel:${client.phone || ''}`}
-                                            className="w-10 h-10 rounded-full bg-gray-100 group-hover:bg-green-100 text-gray-400 group-hover:text-green-600 flex items-center justify-center transition-all shadow-sm"
-                                            title="Call Client"
-                                        >
-                                            <Phone size={18} />
-                                        </Link>
-                                    </div>
+                                    <FollowUpRow key={client.id} client={client as any} />
                                 ))
                             )}
                         </div>
@@ -127,36 +100,39 @@ export default async function AnalysisPage() {
                     </div>
 
                     <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                        <div className="p-4 bg-gray-50 border-b border-gray-100 grid grid-cols-12 gap-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
-                            <div className="col-span-1 text-center">#</div>
-                            <div className="col-span-8">Client</div>
-                            <div className="col-span-3 text-right">Total</div>
+                        <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center gap-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                            <div className="w-8 text-center">#</div>
+                            <div className="flex-1">Client</div>
+                            <div className="text-right">Total</div>
                         </div>
                         <div className="divide-y divide-gray-100">
                             {topClients.map((client, idx) => (
-                                <div key={idx} className="p-4 grid grid-cols-12 gap-4 items-center hover:bg-gray-50 transition-colors">
-                                    <div className="col-span-1 flex justify-center">
-                                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-black ${idx === 0 ? "bg-yellow-100 text-yellow-700 shadow-sm" :
-                                                idx === 1 ? "bg-gray-100 text-gray-700" :
-                                                    idx === 2 ? "bg-orange-100 text-orange-700" :
-                                                        "min-w-0"
+                                <div key={idx} className="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                                    <div className="w-8 flex justify-center flex-shrink-0">
+                                        <div className={`w-8 h-8 shrink-0 aspect-square rounded-full flex items-center justify-center text-sm font-black ${idx === 0 ? "bg-yellow-100 text-yellow-700 shadow-sm" :
+                                            idx === 1 ? "bg-gray-100 text-gray-700" :
+                                                idx === 2 ? "bg-orange-100 text-orange-700" :
+                                                    "min-w-0"
                                             }`}>
                                             {idx + 1}
                                         </div>
                                     </div>
-                                    <div className="col-span-8 min-w-0">
+                                    <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-2">
                                             <p className="font-bold text-gray-900 truncate text-sm">{client.name}</p>
                                             {client.clientId && (
-                                                <Link href={`/dashboard/clients/${client.clientId}`} className="text-gray-300 hover:text-blue-600 shrink-0">
+                                                <Link href={`/dashboard/clients/${client.clientId}`} className="text-gray-300 hover:text-blue-600 shrink-0" title="View Client">
                                                     <ExternalLink size={12} />
                                                 </Link>
                                             )}
                                         </div>
                                     </div>
-                                    <div className="col-span-3 text-right">
-                                        <span className="font-bold text-gray-900 text-sm block">
-                                            {formatCurrency(client.totalSpent, "EGP")}
+                                    <div className="text-right flex-shrink-0">
+                                        <span className="font-bold text-gray-900 text-sm block whitespace-nowrap">
+                                            {client.totalSpent.toLocaleString()}
+                                        </span>
+                                        <span className="text-xs text-gray-400 block whitespace-nowrap">
+                                            {client.invoiceCount} Invoices
                                         </span>
                                     </div>
                                 </div>
