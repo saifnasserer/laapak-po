@@ -1,8 +1,7 @@
-import mysql from 'mysql2/promise';
+import { createPool } from 'mysql2/promise';
 
 // Create the connection pool.
-// Create the connection pool.
-export const reportsPool = mysql.createPool({
+export const reportsPool = createPool({
     host: process.env.REPORTS_DB_HOST || 'localhost',
     port: Number(process.env.REPORTS_DB_PORT) || 3306,
     user: process.env.REPORTS_DB_USER || 'po_readonly',

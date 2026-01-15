@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat } from "next/font/google";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
@@ -23,6 +23,13 @@ export const metadata: Metadata = {
             { url: "/assets/logo-mark.png", type: "image/png" },
         ],
     },
+};
+
+export const viewport: Viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
 };
 
 interface LocaleLayoutProps {
