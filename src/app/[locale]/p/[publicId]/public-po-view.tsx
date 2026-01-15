@@ -67,7 +67,7 @@ export function PublicPOView({ po }: PublicPOViewProps) {
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-white" dir="ltr">
             {/* Action Bar - Hidden when printing */}
             <header className="bg-white border-b border-gray-200 print:hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
