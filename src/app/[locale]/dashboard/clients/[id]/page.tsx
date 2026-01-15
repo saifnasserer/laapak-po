@@ -10,6 +10,7 @@ import { InvoiceTable } from "../components/InvoiceTable";
 import { FetchButton } from "../components/FetchButton";
 import { ClientDashboardTabs } from "../components/ClientDashboardTabs";
 import { getTranslations } from 'next-intl/server';
+import { reportService } from "@/lib/services/reportService";
 
 // Force dynamic rendering - don't cache this page
 export const dynamic = 'force-dynamic';
@@ -84,6 +85,8 @@ export default async function ClientDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  // Fetch initial reports server-side
+  const initialReports = updatedClient.phone ? await reportService.getReportsByPhone(updatedClient.phone) : [];
 
   return (
     <div className="min-h-screen bg-gray-50 pb-12">
@@ -147,6 +150,7 @@ export default async function ClientDetailPage({ params }: PageProps) {
           taxRegistrationNumber={updatedClient.taxRegistrationNumber}
           contactInfo={updatedClient.contactInfo}
           createdAt={updatedClient.createdAt}
+          initialReports={initialReports}
         />
       </main>
     </div>

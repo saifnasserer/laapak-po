@@ -5,21 +5,12 @@ import { Link } from "@/i18n/routing";
 import { FileText, Receipt, Smartphone, RefreshCw, AlertCircle } from "lucide-react";
 import { InvoiceTable } from "./InvoiceTable";
 import { PriceOfferGrid } from "./PriceOfferGrid";
-
-interface DeviceReport {
-    id: string;
-    device_model: string;
-    serial_number: string;
-    inspection_date: string;
-    status: string;
-    hardware_status?: string;
-    amount?: number;
-}
 import { TaxRegistrationControl } from "./TaxRegistrationControl";
 import { formatCurrency } from "@/lib/utils";
 import { FetchButton } from "./FetchButton";
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
+import { DeviceReport } from "@/types/device-report";
 
 interface ClientDashboardTabsProps {
     clientId: string;
@@ -28,24 +19,19 @@ interface ClientDashboardTabsProps {
     taxRegistrationNumber: string | null;
     contactInfo: string | null;
     createdAt: Date;
+    initialReports: DeviceReport[];
 }
 
-export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNumber, contactInfo, createdAt }: ClientDashboardTabsProps) {
+export function ClientDashboardTabs({ clientId, invoices, pos, taxRegistrationNumber, contactInfo, createdAt, initialReports }: ClientDashboardTabsProps) {
     const t = useTranslations('ClientDetails');
     const params = useParams();
     const locale = params.locale as string;
     const isRTL = locale === 'ar';
     const [activeTab, setActiveTab] = useState<"invoices" | "pos" | "reports">("pos");
-    const [reports, setReports] = useState<DeviceReport[]>([]);
+    const [reports, setReports] = useState<DeviceReport[]>(initialReports || []);
     const [loadingReports, setLoadingReports] = useState(false);
     const [reportError, setReportError] = useState<string | null>(null);
-    const [reportsFetched, setReportsFetched] = useState(false);
-
-    useEffect(() => {
-        if (activeTab === "reports" && !reportsFetched) {
-            fetchReports();
-        }
-    }, [activeTab]);
+    const [reportsFetched, setReportsFetched] = useState(true);
 
     const fetchReports = async () => {
         setLoadingReports(true);

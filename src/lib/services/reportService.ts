@@ -1,135 +1,71 @@
-
-export interface DeviceReport {
-    id: string;
-    client_id?: string | number;
-    title?: string;
-    description?: string;
-    device_model: string;
-    serial_number: string;
-    inspection_date: string;
-    status: string;
-    createdAt: string;
-    hardware_status?: string; // JSON string
-    external_images?: string; // JSON string
-    notes?: string;
-    amount?: number;
-    billing_enabled?: boolean;
-}
-
-export interface ClientLookupResult {
-    found: boolean;
-    client?: {
-        id: number;
-        name: string;
-        phone: string;
-        email: string;
-        status: string;
-        createdAt: string;
-    };
-    error?: string;
-}
-
-const API_Base_URL = 'https://reports.laapak.com/api/external';
-const API_KEY = 'laapak-api-key-2024';
+import { reportsPool } from "@/lib/db/reports-db";
+import { RowDataPacket } from "mysql2";
+import { DeviceReport } from "@/types/device-report";
 
 export class ReportService {
-    private async makeRequest<T>(endpoint: string, method: 'GET' | 'POST' = 'GET', data: any = null): Promise<T> {
-        const options: RequestInit = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': API_KEY
-            },
-            cache: 'no-store'
-        };
 
-        if (data) {
-            options.body = JSON.stringify(data);
-        }
-
+    /**
+     * Fetches reports directly from the database for a given phone number.
+     * Joins `reports` with `clients` on `client_id`.
+     */
+    async getReportsByPhone(phone: string): Promise<DeviceReport[]> {
         try {
-            const response = await fetch(`${API_Base_URL}${endpoint}`, options);
+            // Basic phone formatting if necessary, but assuming exact match for now as per schema unique constraint
 
-            if (!response.ok) {
-                // Handle specific error cases if needed
-                if (response.status === 404) {
-                    throw new Error('Not Found');
-                }
-                throw new Error(`API Error: ${response.status} ${response.statusText}`);
-            }
+            const [rows] = await reportsPool.execute<RowDataPacket[]>(`
+                SELECT 
+                    r.id,
+                    r.client_id,
+                    r.order_number as title, -- Using order number as title
+                    r.device_model,
+                    r.serial_number,
+                    r.inspection_date,
+                    r.status,
+                    r.created_at,
+                    r.hardware_status,
+                    r.external_images,
+                    r.notes,
+                    r.amount,
+                    r.billing_enabled
+                FROM reports r
+                JOIN clients c ON r.client_id = c.id
+                WHERE c.phone = ? 
+                ORDER BY r.inspection_date DESC
+            `, [phone]);
 
-            const responseData = await response.json();
-            return responseData as T;
+            // Map and parse dates if necessary (mysql2 returns Date objects for datetime)
+            return rows.map((row: any) => ({
+                ...row,
+                inspection_date: row.inspection_date instanceof Date ? row.inspection_date.toISOString() : row.inspection_date,
+                created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+            })) as DeviceReport[];
+
         } catch (error) {
-            console.error(`ReportService Error [${endpoint}]:`, error);
-            throw error;
-        }
-    }
-
-    async lookupClientByPhone(phone: string): Promise<ClientLookupResult> {
-        try {
-            // The API expects /clients/lookup?phone=...
-            // Response structure from docs: { success: true, client: { ... } }
-            const data = await this.makeRequest<{ success: boolean; client: any }>(`/clients/lookup?phone=${encodeURIComponent(phone)}`);
-
-            if (data.success && data.client) {
-                return { found: true, client: data.client };
-            }
-            return { found: false };
-        } catch (error: any) {
-            if (error.message === 'Not Found') {
-                return { found: false };
-            }
-            return { found: false, error: error.message };
-        }
-    }
-
-    async getClientReports(remoteClientId: number | string): Promise<DeviceReport[]> {
-        try {
-            // The API expects /clients/:id/reports
-            // Response structure from docs: { success: true, reports: [ ... ], count: ... }
-            const data = await this.makeRequest<{ success: boolean; reports: DeviceReport[] }>(`/clients/${remoteClientId}/reports`);
-
-            if (data.success && Array.isArray(data.reports)) {
-                return data.reports;
-            }
-            return [];
-        } catch (error) {
-            console.error('Failed to fetch client reports:', error);
+            console.error("ReportService (Direct DB) Error:", error);
+            // Return empty array on error to prevent app crash
             return [];
         }
     }
 
+    /**
+     * Fetches a single report by ID directly from DB
+     */
     async getReport(reportId: string): Promise<DeviceReport | null> {
         try {
-            // Use path traversal to access the internal API which returns full details
-            // /api/external/../reports/:id -> /api/reports/:id
-            const data = await this.makeRequest<{ success: boolean; report: DeviceReport }>(`/../reports/${reportId}`);
+            const [rows] = await reportsPool.execute<RowDataPacket[]>(`
+                SELECT * FROM reports WHERE id = ?
+            `, [reportId]);
 
-            if (data.success && data.report) {
-                return data.report;
-            }
-            return null;
+            if (rows.length === 0) return null;
+
+            const row = rows[0] as any;
+            return {
+                ...row,
+                inspection_date: row.inspection_date instanceof Date ? row.inspection_date.toISOString() : row.inspection_date,
+                created_at: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+            } as DeviceReport;
         } catch (error) {
             console.error('Failed to fetch report:', error);
-            return null;
-        }
-    }
-
-    async getReportsByPhone(phone: string): Promise<DeviceReport[]> {
-        const lookup = await this.lookupClientByPhone(phone);
-        if (lookup.found && lookup.client) {
-            return this.getClientReports(lookup.client.id);
-        }
-        return [];
-    }
-
-    async getReportByClientPhone(phone: string, reportId: string): Promise<DeviceReport | null> {
-        try {
-            const reports = await this.getReportsByPhone(phone);
-            return reports.find(r => r.id === reportId) || null;
-        } catch (error) {
-            console.error('Failed to find report by phone:', error);
             return null;
         }
     }
